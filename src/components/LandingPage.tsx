@@ -1,0 +1,559 @@
+import React from 'react';
+import { ActivePage, StudentProfileData, RecommendationResult } from '../types';
+import { 
+  Sparkles, 
+  ArrowRight, 
+  Cpu, 
+  BarChart3, 
+  CheckCircle2, 
+  Layers, 
+  Target, 
+  BookOpen, 
+  UserCheck, 
+  Building2, 
+  ArrowUpRight,
+  ShieldCheck,
+  Zap,
+  GraduationCap,
+  UserPlus,
+  LogIn,
+  Binary,
+  FileCheck,
+  Compass,
+  Award,
+  ChevronRight
+} from 'lucide-react';
+
+interface LandingPageProps {
+  setActivePage: (page: ActivePage) => void;
+  onLoadDemoAndRun: () => void;
+  student: StudentProfileData | null;
+  topRecommendation?: RecommendationResult;
+  onGetStarted?: () => void;
+  onOpenAuthModal?: (mode?: 'login' | 'register') => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({
+  setActivePage,
+  onLoadDemoAndRun,
+  student,
+  topRecommendation,
+  onGetStarted,
+  onOpenAuthModal,
+}) => {
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else if (onOpenAuthModal) {
+      onOpenAuthModal('register');
+    } else {
+      setActivePage('profile');
+    }
+  };
+
+  const handleLogin = () => {
+    if (onOpenAuthModal) {
+      onOpenAuthModal('login');
+    } else if (onGetStarted) {
+      onGetStarted();
+    } else {
+      setActivePage('profile');
+    }
+  };
+
+  const scrollToWorking = () => {
+    const el = document.getElementById('platform-working-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="space-y-16 pb-20">
+      
+      {/* HERO SECTION: PLATFORM INTRODUCTION & GET STARTED */}
+      <section className="relative overflow-hidden pt-8 pb-16 lg:pt-12 lg:pb-20 border-b border-slate-200 bg-white rounded-3xl shadow-xs">
+        {/* Decorative Grid Background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-70 pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center max-w-3xl mx-auto space-y-6">
+            
+            {/* Top Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-700 text-xs font-semibold shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
+              <span>AI-Powered Campus Placement & Career Recommendation System</span>
+            </div>
+
+            {/* Platform Title & Slogan */}
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight">
+                PLACERA
+              </h1>
+              <p className="text-2xl sm:text-3xl font-extrabold text-indigo-600 tracking-tight">
+                Find Where You Fit.
+              </p>
+            </div>
+
+            {/* About the Platform Description (Is platform ke baare me) */}
+            <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto">
+              <strong>PLACERA</strong> is an intelligent placement matching engine that evaluates engineering students 
+              beyond basic CGPA cutoffs. By analyzing verified programming competencies, academic metrics, 
+              and achievements against <strong>300+ campus recruiter profiles</strong>, PLACERA predicts your top-fit job roles 
+              and generates personalized interview roadmaps.
+            </p>
+
+            {/* Main Action Buttons with Prominent GET STARTED */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+              {/* PRIMARY GET STARTED BUTTON */}
+              <button
+                onClick={handleGetStarted}
+                id="hero-get-started-btn"
+                className="w-full sm:w-auto px-7 py-3.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 group"
+              >
+                {student ? (
+                  <>
+                    <UserCheck className="w-4 h-4 text-indigo-200 group-hover:text-white transition-colors" />
+                    <span>Go to My Dashboard ({student.name.split(' ')[0]})</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4 text-indigo-200 group-hover:text-white transition-colors" />
+                    <span>Get Started (Register / Sign In)</span>
+                  </>
+                )}
+                <ArrowRight className="w-4 h-4 text-indigo-200 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              {/* HOW IT WORKS ANCHOR BUTTON */}
+              <button
+                onClick={scrollToWorking}
+                id="hero-how-it-works-btn"
+                className="w-full sm:w-auto px-6 py-3.5 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <Cpu className="w-4 h-4 text-indigo-600" />
+                <span>How Platform Works</span>
+              </button>
+
+              {/* DEMO MODE BUTTON */}
+              <button
+                onClick={onLoadDemoAndRun}
+                id="hero-demo-mode-btn"
+                className="w-full sm:w-auto px-5 py-3.5 text-sm font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <UserCheck className="w-4 h-4 text-emerald-600" />
+                <span>Instant Demo Preview</span>
+              </button>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="pt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-slate-500 text-xs font-medium border-t border-slate-100 max-w-xl mx-auto">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>500+ Student Benchmark</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>300+ Verified Campus Roles</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>Transparent AI Match Scores</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 1: ABOUT THE PLATFORM (IS PLATFORM KE BAARE ME) */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="text-center max-w-3xl mx-auto space-y-2">
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full uppercase tracking-wider">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>About The Platform</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Why PLACERA Replaces Legacy Placement Systems
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            Traditional campus placement portals filter students using crude, one-dimensional GPA cutoffs, ignoring genuine coding skills and project contributions. PLACERA brings fair, multi-dimensional Machine Learning to campus recruitment.
+          </p>
+        </div>
+
+        {/* 3 Core Value Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Pillar 1 */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-indigo-300 transition-all space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Holistic Candidate Evaluation</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              We look beyond just marks. PLACERA analyzes student programming languages, tech frameworks, certified projects, and hackathon achievements so skilled engineers never get left behind.
+            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-semibold text-indigo-700">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Full Profile Scoring</span>
+            </div>
+          </div>
+
+          {/* Pillar 2 */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-indigo-300 transition-all space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+              <Cpu className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Explainable AI & Fair Shortlisting</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              No black-box rejections. Students and placement coordinators get a complete breakdown showing TF-IDF similarity, Random Forest suitability, and exact matching skills.
+            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-semibold text-purple-700">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>100% Transparent Rationale</span>
+            </div>
+          </div>
+
+          {/* Pillar 3 */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:border-indigo-300 transition-all space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Compass className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900">Skill-Gap Roadmap & Preparation</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Discovers missing competencies for dream companies like Google or Amazon, providing customized 3-step learning roadmaps before the recruiter sets foot on campus.
+            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Targeted Upskilling Guides</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2: PLATFORM WORKING (ISKI WORKING KE BAARE ME) */}
+      <section id="platform-working-section" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xs space-y-8">
+          
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full uppercase tracking-wider">
+              <Zap className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Step-by-Step Architecture</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              How The Platform Works (Platform Ki Working)
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              From student registration to AI-ranked placement opportunities in 4 seamless steps
+            </p>
+          </div>
+
+          {/* 4 Steps Visual Flow */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative">
+            
+            {/* Step 1 */}
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-4 hover:border-indigo-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="w-9 h-9 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                    01
+                  </span>
+                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded">
+                    Account Setup
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <UserPlus className="w-4 h-4 text-indigo-600" />
+                  <span>Register & Profile Setup</span>
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                  Create your profile with college credentials, CGPA, department, roll number, and capture your profile picture via live webcam or file upload.
+                </p>
+                <div className="space-y-1 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px] text-slate-600 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Auth:</span>
+                    <span className="font-semibold text-slate-800">Email / Roll No</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Photo:</span>
+                    <span className="font-semibold text-slate-800">Webcam / File</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleGetStarted}
+                className="w-full text-center py-2 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors cursor-pointer"
+              >
+                Register Now →
+              </button>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-4 hover:border-indigo-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                    02
+                  </span>
+                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded">
+                    Data Ingestion
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <Award className="w-4 h-4 text-blue-600" />
+                  <span>Skills & Achievements</span>
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                  Log your technical programming languages, frameworks, hackathons won, competitive coding ranks, and verified academic milestones.
+                </p>
+                <div className="space-y-1 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px] text-slate-600 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Skills:</span>
+                    <span className="font-semibold text-slate-800">Python, DSA, ML</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Awards:</span>
+                    <span className="font-semibold text-slate-800">Hackathons, Ranks</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setActivePage('profile')}
+                className="w-full text-center py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+              >
+                Manage Profile →
+              </button>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-4 hover:border-indigo-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="w-9 h-9 rounded-xl bg-purple-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                    03
+                  </span>
+                  <span className="text-[10px] font-bold text-purple-600 uppercase tracking-wider bg-purple-50 px-2 py-0.5 rounded">
+                    ML Processing
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <Binary className="w-4 h-4 text-purple-600" />
+                  <span>TF-IDF & Random Forest</span>
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                  The AI pipeline vectorizes profile text, measures Cosine Similarity against 300+ jobs, and runs an ensemble Random Forest classifier to compute placement probability.
+                </p>
+                <div className="space-y-1 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px] text-slate-600 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">NLP:</span>
+                    <span className="font-semibold text-slate-800">TF-IDF Vector Space</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Ensemble:</span>
+                    <span className="font-semibold text-slate-800">150 Decision Trees</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setActivePage('pipeline')}
+                className="w-full text-center py-2 text-xs font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors cursor-pointer"
+              >
+                Inspect Pipeline →
+              </button>
+            </div>
+
+            {/* Step 4 */}
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-4 hover:border-emerald-300 transition-colors">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-xs">
+                    04
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded">
+                    Output & Action
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-emerald-600" />
+                  <span>Ranked Jobs & Roadmap</span>
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                  Instant list of top matched companies with salary CTC, eligibility check, matching vs missing skills, and detailed interview preparation steps.
+                </p>
+                <div className="space-y-1 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px] text-slate-600 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Output:</span>
+                    <span className="font-semibold text-slate-800">Ranked Match %</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Roadmap:</span>
+                    <span className="font-semibold text-slate-800">Targeted Gap Prep</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setActivePage('recommendations')}
+                className="w-full text-center py-2 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors cursor-pointer"
+              >
+                View Job Matches →
+              </button>
+            </div>
+
+          </div>
+
+          {/* Current Active Candidate Quick Peek */}
+          <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/80 p-4 rounded-2xl">
+            {student ? (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-sm">
+                  {student.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Active Profile:</span>
+                    <span className="text-indigo-600 font-extrabold">{student.name}</span>
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {student.branch} • CGPA {student.GPA}/10.0 • {student.skills.length} skills listed
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-600 font-bold flex items-center justify-center text-sm">
+                  <UserCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-900">
+                    No active student dossier logged in
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    Create your profile to calculate personalized match scores and skill gaps.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <button
+                onClick={handleLogin}
+                className="w-full sm:w-auto px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <LogIn className="w-3.5 h-3.5 text-slate-500" />
+                <span>{student ? 'Switch / Login' : 'Sign In'}</span>
+              </button>
+
+              <button
+                onClick={handleGetStarted}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>{student ? 'Register New Student' : 'Create My Profile'}</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* SECTION 3: RECRUITER SPECTRUM & CAMPUS OPPORTUNITIES */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+            Campus Placement Recruiters Covered
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600">
+            Real job descriptions from Tier-1 Dream employers, product giants, and high-growth tech firms
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-4 text-center shadow-xs">
+            <span className="text-xs font-bold text-purple-700 uppercase block mb-1">Tier 1 Dream</span>
+            <p className="text-sm font-extrabold text-slate-800">Google • Microsoft</p>
+            <span className="text-[11px] text-slate-500">₹25 - 45+ LPA</span>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-4 text-center shadow-xs">
+            <span className="text-xs font-bold text-blue-700 uppercase block mb-1">Core Tech Giants</span>
+            <p className="text-sm font-extrabold text-slate-800">Amazon • Cisco • Oracle</p>
+            <span className="text-[11px] text-slate-500">₹18 - 32 LPA</span>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-4 text-center shadow-xs">
+            <span className="text-xs font-bold text-emerald-700 uppercase block mb-1">Fintech & Quant</span>
+            <p className="text-sm font-extrabold text-slate-800">Goldman Sachs • Morgan</p>
+            <span className="text-[11px] text-slate-500">₹22 - 38 LPA</span>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 p-4 text-center shadow-xs">
+            <span className="text-xs font-bold text-indigo-700 uppercase block mb-1">Product Innovators</span>
+            <p className="text-sm font-extrabold text-slate-800">Uber • Atlassian • Adobe</p>
+            <span className="text-[11px] text-slate-500">₹20 - 40 LPA</span>
+          </div>
+        </div>
+      </section>
+
+      {/* BOTTOM CTA: GET STARTED BANNER */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 relative z-10">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 text-xs text-indigo-300 font-mono bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-700/60">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Ready to Launch Your Campus Placement Journey?</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Create Your Profile or Sign In to Explore Top Matches
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                Join hundreds of engineering students finding their ideal placement fit with transparent AI match scoring, webcam-verified identity, and custom preparation roadmaps.
+              </p>
+            </div>
+
+            {student ? (
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => setActivePage('dashboard')}
+                  id="bottom-dashboard-btn"
+                  className="w-full sm:w-auto px-7 py-3.5 text-sm font-bold bg-white text-indigo-950 hover:bg-slate-100 rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 group"
+                >
+                  <UserCheck className="w-4 h-4 text-indigo-600" />
+                  <span>Open Placement Dashboard</span>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+                <button
+                  onClick={() => setActivePage('profile')}
+                  id="bottom-profile-btn"
+                  className="w-full sm:w-auto px-5 py-3.5 text-sm font-semibold bg-indigo-800/80 hover:bg-indigo-700 text-white rounded-xl border border-indigo-600/60 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <span>View Academic Profile</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <button
+                  onClick={handleGetStarted}
+                  id="bottom-get-started-btn"
+                  className="w-full sm:w-auto px-7 py-3.5 text-sm font-bold bg-white text-indigo-950 hover:bg-slate-100 rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 group"
+                >
+                  <UserPlus className="w-4 h-4 text-indigo-600" />
+                  <span>Get Started (Register)</span>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+
+                <button
+                  onClick={handleLogin}
+                  id="bottom-login-btn"
+                  className="w-full sm:w-auto px-5 py-3.5 text-sm font-semibold bg-indigo-800/80 hover:bg-indigo-700 text-white rounded-xl border border-indigo-600/60 transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <LogIn className="w-4 h-4 text-indigo-300" />
+                  <span>Student Login</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+    </div>
+  );
+};
