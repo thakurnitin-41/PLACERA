@@ -207,7 +207,7 @@ export const PlacementCellDashboard: React.FC<PlacementCellDashboardProps> = ({
         <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
         <p>
           <span className="font-bold">PBL Academic Dataset Label: </span>
-          This dashboard displays simulated batch analytics (500+ student profiles, 300+ job openings, 80/20 train-test split) as specified in the B.Tech CSE AI Project specification.
+          This dashboard displays simulated batch analytics from synthetic demo profiles and opportunities. It is not a live recruiter or institutional data feed.
         </p>
       </div>
 
@@ -237,7 +237,7 @@ export const PlacementCellDashboard: React.FC<PlacementCellDashboardProps> = ({
             <span className="text-3xl font-black text-slate-900">{avgCampusMatch}%</span>
             <span className="text-[11px] font-bold text-emerald-600">+12% vs Manual</span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-1">TF-IDF & Random Forest Fit</p>
+          <p className="text-[11px] text-slate-400 mt-1">TF-IDF & deterministic criteria fit</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">

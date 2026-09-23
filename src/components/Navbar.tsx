@@ -119,13 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           ) : (
             <button
-              onClick={() => {
-                if (onOpenAuthModal) {
-                  onOpenAuthModal('admin', 'login');
-                } else {
-                  setActivePage('admin');
-                }
-              }}
+              onClick={() => setActivePage('admin')}
               id="nav-admin-portal-top-btn"
               className="flex items-center gap-1.5 text-xs text-emerald-300 hover:text-white transition-colors cursor-pointer font-bold"
             >
@@ -359,7 +353,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </button>
 
                     <button
-                      onClick={() => onOpenAuthModal('admin', 'login')}
+                      onClick={() => setActivePage('admin')}
                       id="navbar-admin-entry-btn"
                       className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all cursor-pointer active:scale-95"
                     >
@@ -567,7 +561,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </button>
                   <button
                     onClick={() => {
-                      onOpenAuthModal('admin', 'login');
+                      setActivePage('admin');
                       setMobileMenuOpen(false);
                     }}
                     className="w-full col-span-2 text-center py-2 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl cursor-pointer"

@@ -23,7 +23,7 @@ interface AIInsightsModelPageProps {
 export const AIInsightsModelPage: React.FC<AIInsightsModelPageProps> = ({ onBack }) => {
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
-  const pythonPipelineCode = `# PLACERA AI/ML Pipeline: Scikit-learn + TF-IDF + Random Forest
+  const pythonPipelineCode = `# PLACERA AI Pipeline: TF-IDF + deterministic criteria
 import pandas as pd
 import numpy as np
 import re
@@ -44,7 +44,7 @@ def preprocess_text(text):
     tokens = text.split()
     return " ".join([t for t in tokens if t not in stop_words])
 
-# 1. Load Academic Mock Dataset (500+ students, 300+ jobs)
+# 1. Load synthetic demo data (client-side Placera ships 25+ opportunities)
 students_df = pd.read_csv("students_academic_pbl.csv")
 jobs_df = pd.read_csv("jobs_placement_pbl.csv")
 
@@ -59,7 +59,7 @@ student_vectors = tfidf.transform(students_df['clean_profile'])
 # 3. Compute Cosine Similarity Matrix
 similarity_matrix = cosine_similarity(student_vectors, job_vectors)
 
-# 4. Feature Extraction for Random Forest Classifier
+# 4. Explicit criteria features (no trained classifier is shipped)
 # Features: [cosine_sim, gpa_diff, cert_count, project_count, branch_eligible]
 # 80/20 Train-Test Split for supervised validation
 X_train, X_test, y_train, y_test = train_test_split(X_features, y_labels, test_size=0.20, random_state=42)
@@ -123,20 +123,20 @@ rf_classifier = RandomForestClassifier(n_estimators=150, max_depth=12, random_st
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center space-y-1">
             <span className="text-xs font-semibold text-slate-500 uppercase">Student Profiles</span>
-            <div className="text-3xl font-black text-slate-900">500+</div>
-            <p className="text-[11px] text-slate-500">Engineering candidates across CSE, AI & DS, IT, ECE</p>
+            <div className="text-3xl font-black text-slate-900">Demo</div>
+            <p className="text-[11px] text-slate-500">Local test profiles for deterministic validation</p>
           </div>
 
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center space-y-1">
             <span className="text-xs font-semibold text-slate-500 uppercase">Campus Job Postings</span>
-            <div className="text-3xl font-black text-slate-900">300+</div>
-            <p className="text-[11px] text-slate-500">Tier 1 Dream, Tier 2 & Core IT campus recruiters</p>
+            <div className="text-3xl font-black text-slate-900">25+</div>
+            <p className="text-[11px] text-slate-500">Synthetic Tier 1, Tier 2 & Core IT opportunities</p>
           </div>
 
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center space-y-1">
             <span className="text-xs font-semibold text-slate-500 uppercase">Validation Strategy</span>
-            <div className="text-3xl font-black text-indigo-600">80 / 20</div>
-            <p className="text-[11px] text-slate-500">Train-Test Split with Stratified K-Fold validation</p>
+            <div className="text-3xl font-black text-indigo-600">0 keys</div>
+            <p className="text-[11px] text-slate-500">Client-side pipeline; no API keys or trained model</p>
           </div>
         </div>
 
@@ -227,7 +227,7 @@ rf_classifier = RandomForestClassifier(n_estimators=150, max_depth=12, random_st
             </div>
 
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="font-bold text-slate-900 block mb-1">3. Random Forest Fit Classifier</span>
+              <span className="font-bold text-slate-900 block mb-1">3. Deterministic Multi-Criteria Fit</span>
               <p className="text-slate-600 leading-relaxed">
                 Ensemble of 150 bagged decision trees that predicts student placement fit probability using both the NLP similarity score and structured academic attributes.
               </p>

@@ -59,21 +59,21 @@ export const AIPipelinePage: React.FC<AIPipelinePageProps> = ({
     },
     {
       id: 4,
-      name: 'Random Forest Fit Classifier',
-      shortDesc: 'Multi-feature ensemble decision trees',
+      name: 'Deterministic Multi-Criteria Fit',
+      shortDesc: 'Explainable structured profile scoring',
       status: activeStepIndex >= 4 ? 'completed' : isRunning && activeStepIndex === 3 ? 'processing' : 'pending',
-      details: 'Combines the semantic Cosine score with structured academic features: GPA cutoff margin, certifications count, internship experience length, and branch qualification to output a non-linear placement fit score.',
-      vivaKeyPoint: 'Viva Tip: Random Forest handles tabular structured features (GPA, branch, certifications) combined with the unstructured NLP similarity score, reducing overfitting through bagging (bootstrap aggregating).',
-      formula: '\\hat{y}_{RF} = \\frac{1}{B} \\sum_{b=1}^B T_b(\\mathbf{x}) \\quad \\text{where } \\mathbf{x} = [\\text{sim}, \\text{gpa}, \\text{certs}, \\text{branch}, \\text{exp}]'
+      details: 'Combines cosine similarity with explicit, deterministic features: CGPA margin, branch eligibility, projects, certifications, DSA practice, and profile completeness. Every contribution is inspectable.',
+      vivaKeyPoint: 'Viva Tip: This client-side platform uses a weighted heuristic rather than claiming a trained model. That makes the score reproducible and auditable without hidden training data.',
+      formula: '\\text{Fit} = \\text{GPA} + \\text{Cosine} + \\text{Branch} + \\text{Projects} + \\text{DSA} + \\text{Profile}'
     },
     {
       id: 5,
       name: 'Ranked Recommendations',
       shortDesc: 'Top-N placement scoring & sorting',
       status: activeStepIndex >= 5 ? 'completed' : isRunning && activeStepIndex === 4 ? 'processing' : 'pending',
-      details: 'Aggregates Cosine similarity and Random Forest fit scores into a unified Match % index (0–100%), sorts 300+ campus opportunities, and generates the Top-N job roster.',
-      vivaKeyPoint: 'Viva Tip: Ranking allows placement officers to enforce fair eligibility cutoffs while giving students a transparent view of Dream, Core, and Service opportunities.',
-      formula: '\\text{Match Score} = \\alpha \\cdot S_c + \\beta \\cdot \\text{RF}_{\\text{fit}} + \\gamma \\cdot \\text{SkillOverlap}'
+      details: 'Aggregates cosine similarity, deterministic multi-criteria fit, direct required-skill coverage, and a small target-role alignment bonus into a unified Match % index.',
+      vivaKeyPoint: 'Viva Tip: Eligibility is evaluated separately from fit so a strong similarity score cannot override a hard CGPA, branch, backlog, or intake-year rule.',
+      formula: '\\text{Match Score} = 0.35S_c + 0.35F_{criteria} + 0.30S_{skills} + B_{role}'
     },
     {
       id: 6,

@@ -122,7 +122,7 @@ print(f"Cleaned Token Stream ({len(student_tokens)} tokens):", student_tokens[:1
       subtitle: 'Stage 2: High-Dimensional TF-IDF Vectorization',
       mathFormula: '\\text{tf-idf}(t, d, D) = \\big(1 + \\log(\\text{tf}(t, d))\\big) \\times \\left( \\log\\left( \\frac{1 + |D|}{1 + |\\{d \\in D : t \\in d\\}|} \\right) + 1 \\right)',
       formulaBreakdown: [
-        { symbol: 't, d, D', meaning: 'Term t (e.g., "PyTorch"), Document d (Student Profile), Corpus D (300+ Campus Job Postings)' },
+        { symbol: 't, d, D', meaning: 'Term t (e.g., "PyTorch"), Document d (Student Profile), Corpus D (synthetic opportunity postings)' },
         { symbol: '\\text{tf}(t, d)', meaning: 'Sublinear term frequency: occurrences of skill t in profile d, scaled logarithmically to avoid frequency saturation' },
         { symbol: '|D|', meaning: 'Total number of campus job postings in placement repository (e.g., |D| = 320)' },
         { symbol: '|\\{d \\in D : t \\in d\\}|', meaning: 'Document frequency: number of job postings containing the term t' },
@@ -202,7 +202,7 @@ for idx, score in enumerate(similarity_matrix):
     {
       id: 4,
       name: 'Multi-feature Ensemble Decision Trees',
-      subtitle: 'Stage 4: Random Forest Placement Fit Classifier',
+      subtitle: 'Stage 4: Deterministic Multi-Criteria Fit',
       mathFormula: '\\hat{y}_{RF}(\\mathbf{x}) = \\frac{1}{B} \\sum_{b=1}^B T_b(\\mathbf{x}), \\quad \\mathbf{x} = \\begin{bmatrix} S_c \\\\ \\text{GPA} - \\text{GPA}_{\\text{min}} \\\\ \\mathbb{I}(\\text{branch} \\in \\mathcal{B}) \\\\ \\text{Projects}_{\\text{rel}} \\\\ \\text{Certs}_{\\text{count}} \\\\ \\text{Internship}_{\\text{mos}} \\end{bmatrix}',
       formulaBreakdown: [
         { symbol: 'B', meaning: 'Number of decorrelated bootstrap decision trees in ensemble (B = 100 trees)' },
@@ -212,7 +212,7 @@ for idx, score in enumerate(similarity_matrix):
         { symbol: '\\mathbb{I}(\\text{branch} \\in \\mathcal{B})', meaning: 'Binary indicator flag (1 if eligible branch, 0 otherwise)' },
         { symbol: 'Projects, Certs', meaning: 'Count and verification weight of aligned practical projects and recognized certifications' }
       ],
-      liveExplanation: `While Cosine Similarity measures raw keyword match, recruiters also look at GPA cutoffs, department eligibility, and practical experience. The Random Forest ensemble ingests this heterogeneous feature vector and outputs a non-linear placement probability score.`,
+      liveExplanation: `While Cosine Similarity measures raw keyword match, recruiters also look at GPA cutoffs, department eligibility, and practical experience. Placera combines these explicit criteria into a reproducible fit score; no trained classifier is claimed.`,
       pythonSnippet: `from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 
@@ -237,16 +237,16 @@ rf_model.fit(X_train, y_train)
 
 # Predict Arjun's fit score
 arjun_features = np.array([[0.88, ${student.GPA} - 7.5, 1, ${student.projects.length}, ${student.certifications.length}]])
-prob_fit = rf_model.predict_proba(arjun_features)[0][1]
-print(f"Random Forest Placement Probability: {prob_fit * 100:.1f}%")`,
+prob_fit = deterministic_criteria_fit(arjun_features)
+print(f"Deterministic Criteria Fit: {prob_fit * 100:.1f}%")`,
       vivaExaminerQA: [
         {
-          question: "Examiner: Why not rely solely on the Cosine Similarity score? Why introduce Random Forest?",
-          answer: "Candidate: Cosine similarity is purely an NLP text-overlap metric. It has no mechanism to enforce non-linear academic constraints like a 7.5 GPA cutoff, branch restrictions (e.g. MECH ineligible for Core AI), or internship weight. Random Forest blends continuous NLP similarity with discrete tabular criteria into a realistic hiring decision."
+          question: "Examiner: Why not rely solely on the Cosine Similarity score?",
+          answer: "Candidate: Cosine similarity is purely an NLP text-overlap metric. It has no mechanism to enforce academic constraints like a 7.5 GPA cutoff or branch restrictions. Placera keeps those eligibility checks separate and adds transparent weighted criteria for projects, DSA practice, and profile evidence."
         },
         {
-          question: "Examiner: How does Random Forest prevent overfitting compared to a single Decision Tree?",
-          answer: "Candidate: Random Forest uses Bagging (Bootstrap Aggregation) to train multiple independent trees on random data subsets, while selecting random feature subsets (mtry = sqrt(p)) at each split. Averaging their predictions reduces model variance without increasing bias."
+          question: "Examiner: Is a trained model used in the browser?",
+          answer: "Candidate: No. The browser uses deterministic rules and TF-IDF/cosine similarity. A trained classifier would require a versioned labelled dataset and evaluation evidence, so the platform does not claim one."
         }
       ]
     },
@@ -258,7 +258,7 @@ print(f"Random Forest Placement Probability: {prob_fit * 100:.1f}%")`,
       formulaBreakdown: [
         { symbol: '\\alpha, \\beta, \\gamma', meaning: 'Tuned ensemble weights (PLACERA default: \\alpha = 0.40, \\beta = 0.40, \\gamma = 0.20)' },
         { symbol: 'S_c(s, j)', meaning: 'NLP Cosine similarity score between student s and job j' },
-        { symbol: '\\hat{y}_{RF}(s, j)', meaning: 'Random Forest ensemble placement probability fit' },
+        { symbol: 'F_{criteria}(s, j)', meaning: 'Deterministic multi-criteria fit score' },
         { symbol: '\\frac{|\\mathcal{K}_s \\cap \\mathcal{K}_j|}{|\\mathcal{K}_j|}', meaning: 'Direct required skills overlap proportion' },
         { symbol: '\\Phi(\\text{Eligibility})', meaning: 'Hard placement constraint function enforcing GPA >= cutoff, eligible branch, and backlogs policy' }
       ],
@@ -603,7 +603,7 @@ def explain_recommendation(student, job, final_score):
 
                 {currentStage === 3 && (
                   <div className="space-y-3 text-xs">
-                    <span className="font-bold text-slate-700 block">Random Forest Tabular Feature Vector:</span>
+                    <span className="font-bold text-slate-700 block">Structured criteria feature vector:</span>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 font-mono">
                       <div className="p-2.5 bg-slate-50 border rounded-lg">
                         <span className="text-[10px] text-slate-400 block">x1: Cosine Similarity</span>

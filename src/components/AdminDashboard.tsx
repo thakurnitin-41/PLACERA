@@ -263,7 +263,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
   
   // Verification filter & search
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'verified' | 'flagged' | 'rejected'>('pending');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'verified' | 'flagged' | 'rejected'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [branchFilter, setBranchFilter] = useState<string>('all');
   const [batchYearFilter, setBatchYearFilter] = useState<string>('all');

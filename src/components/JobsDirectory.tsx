@@ -74,13 +74,13 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full mb-2">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Campus Recruitment Pool</span>
+            <span>Synthetic Campus Recruitment Pool</span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Campus Placement Opportunities
+            Campus Placement Opportunities <span className="text-[10px] font-semibold text-amber-700">(demo data)</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Browse active recruiter postings from Tier 1 Dream, Tier 2, and Core engineering companies.
+            Browse synthetic recruiter postings from Tier 1 Dream, Tier 2, and Core engineering companies. Verify any real-world opening independently.
           </p>
         </div>
 
@@ -101,7 +101,7 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
           </h2>
           <p className="text-xs text-indigo-200 max-w-2xl">
             {student 
-              ? `Evaluate your ${student.skills.length} listed skills, ${student.GPA} CGPA, and branch eligibility using TF-IDF cosine similarity & 150-tree Random Forest.`
+              ? `Evaluate your ${student.skills.length} listed skills, ${student.GPA} CGPA, and branch eligibility using TF-IDF cosine similarity and deterministic criteria.`
               : 'Sign in or create your student profile to automatically compute personalized match scores, identify missing skills, and rank jobs.'}
           </p>
         </div>

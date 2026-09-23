@@ -1696,7 +1696,7 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
           <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
             <Medal className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div className="text-[11px] leading-relaxed">
-              <strong>ML Ensemble Booster:</strong> Each verified achievement adds up to +2.0 bonus points (max +6 pts) to the Random Forest placement classification fit and is directly cited in recruiter match explanations.
+              <strong>Profile evidence booster:</strong> Each verified achievement adds up to +2.0 bonus points (max +6 pts) to the deterministic criteria fit and is directly cited in recruiter match explanations.
             </div>
           </div>
 
@@ -1996,7 +1996,7 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
             <div>
               <h4 className="text-sm font-bold">Ready for Model Inference?</h4>
               <p className="text-xs text-slate-400">
-                Feeds profile into TF-IDF vectorizer and Random Forest ensemble classifier.
+                Feeds profile into TF-IDF vectorizer and deterministic multi-criteria scoring.
               </p>
             </div>
           </div>

@@ -181,6 +181,55 @@ export interface StudentProfileData {
   willingToRelocate?: boolean;
 }
 
+export type TargetRole =
+  | 'Software Development Engineer (SDE-1)'
+  | 'Frontend Engineer'
+  | 'Backend Systems Engineer'
+  | 'AI / Machine Learning Engineer'
+  | 'Data Scientist / Analytics'
+  | 'Cloud & DevOps Engineer'
+  | 'Cybersecurity Analyst'
+  | 'Product & Business Analyst';
+
+export interface TargetRoleInfo {
+  id: string;
+  title: TargetRole;
+  category: 'Software Engineering' | 'Data & AI' | 'Cloud & Systems' | 'Security & Analytics';
+  description: string;
+  coreSkills: string[];
+  secondarySkills: string[];
+  commonCoursework: string[];
+  avgPackageRange: string;
+  typicalInterviewRounds: string[];
+}
+
+export interface EligibilityReport {
+  overallStatus: 'Eligible' | 'Borderline' | 'Ineligible';
+  cgpaPassed: boolean;
+  cgpaDiff: number;
+  backlogsPassed: boolean;
+  activeBacklogs: number;
+  maxBacklogsAllowed: number;
+  branchPassed: boolean;
+  graduationYearPassed: boolean;
+  notes: string[];
+}
+
+export interface ExplainableScoreReason {
+  type: 'positive' | 'warning' | 'info';
+  title: string;
+  detail: string;
+  weightImpact: string;
+}
+
+export interface ExplainableScoreBreakdown {
+  semantic_nlp_score: number; // 35% weight
+  multi_criteria_fit_score: number; // 35% weight
+  skill_overlap_score: number; // 30% weight
+  target_role_bonus: number;
+  reasons: ExplainableScoreReason[];
+}
+
 export interface JobPosting {
   job_id: string;
   company: string;
@@ -195,6 +244,11 @@ export interface JobPosting {
   description: string;
   ctc_range?: string;
   category?: 'Tier 1 (Dream)' | 'Tier 2' | 'Core IT' | 'Start-up' | 'Tier 3 (Core/Mass)';
+  role_category?: string;
+  interview_rounds?: string[];
+  max_allowed_backlogs?: number;
+  eligible_graduation_years?: number[];
+  isSyntheticDemoData?: boolean;
 }
 
 export interface RecommendationResult {
@@ -202,7 +256,8 @@ export interface RecommendationResult {
   student_id: string;
   job: JobPosting;
   cosine_similarity_score: number; // 0 - 100
-  rf_fit_score: number; // 0 - 100
+  multi_criteria_fit_score: number; // 0 - 100 (formerly rf_fit_score)
+  rf_fit_score?: number; // Backwards-compatibility alias
   final_match_score: number; // 0 - 100
   matching_skills: string[];
   missing_skills: string[];
@@ -211,7 +266,43 @@ export interface RecommendationResult {
   relevant_projects: string[];
   relevant_certifications: string[];
   recommendation_reason: string;
+  score_breakdown?: ExplainableScoreBreakdown;
+  eligibility_report?: EligibilityReport;
   timestamp: string;
+}
+
+export interface ATSResumeAnalysis {
+  atsScore: number; // 0 to 100
+  readinessGrade: 'Elite' | 'Competitive' | 'Needs Improvement' | 'Critical Gaps';
+  foundSkills: string[];
+  missingKeySkills: string[];
+  metricsDetectedCount: number;
+  actionVerbsCount: number;
+  wordCount: number;
+  sectionScores: {
+    skillsMatch: number;
+    experienceImpact: number;
+    projectRelevance: number;
+    formattingStructure: number;
+  };
+  suggestions: string[];
+}
+
+export interface SimulationResult {
+  addedSkills: string[];
+  addedLeetCodeCount: number;
+  addedCertifications: string[];
+  originalAverageMatch: number;
+  simulatedAverageMatch: number;
+  averageDelta: number;
+  newlyEligibleJobCount: number;
+  topGains: {
+    jobTitle: string;
+    company: string;
+    beforeMatch: number;
+    afterMatch: number;
+    delta: number;
+  }[];
 }
 
 export interface SkillGapItem {

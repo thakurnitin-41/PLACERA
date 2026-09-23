@@ -1,6 +1,14 @@
+/**
+ * SIMULATED CAMPUS DRIVE BENCHMARKS (SYNTHETIC DEMO DATA)
+ * -------------------------------------------------------------
+ * NOTICE: The company listings, CTC figures, and eligibility criteria below are
+ * curated synthetic datasets designed for academic placement training, readiness
+ * evaluation, and algorithm verification. They do NOT represent real-time live
+ * job openings from the respective organizations.
+ */
 import { JobPosting } from '../types';
 
-export const MOCK_JOBS: JobPosting[] = [
+const MOCK_JOBS_DATA: JobPosting[] = [
   {
     job_id: 'JOB-2024-001',
     company: 'Microsoft IDC',
@@ -377,3 +385,8 @@ export const MOCK_JOBS: JobPosting[] = [
     category: 'Tier 3 (Core/Mass)'
   }
 ];
+
+export const MOCK_JOBS: JobPosting[] = MOCK_JOBS_DATA.map(job => ({
+  ...job,
+  isSyntheticDemoData: true
+}));

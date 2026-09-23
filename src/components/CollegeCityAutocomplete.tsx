@@ -261,7 +261,7 @@ export const CollegeCityAutocomplete: React.FC<CollegeCityAutocompleteProps> = (
               onChange={(e) => handleQueryChange(e.target.value)}
               onFocus={() => setIsOpen(true)}
               placeholder="Type any college or university (e.g. MIET Meerut, MJPRU Bareilly, JIIT, IIT)..."
-              className="w-full pl-9 pr-8 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white font-medium transition-all"
+              className="w-full pl-9 pr-8 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white text-slate-700 transition-all"
             />
             <School className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
             
@@ -308,7 +308,7 @@ export const CollegeCityAutocomplete: React.FC<CollegeCityAutocompleteProps> = (
                 onChange={(e) => handleCityInputChange(e.target.value)}
                 onFocus={() => setIsOpen(true)}
                 placeholder="e.g. Meerut, Bareilly, Noida, Lucknow"
-                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white font-medium"
+                className="w-full pl-8 pr-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white text-slate-700"
               />
               <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" />
             </div>

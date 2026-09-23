@@ -34,26 +34,17 @@ export default function App() {
   const [notification, setNotification] = useState<string | null>(null);
 
   // Admin session state
-  const [adminSession, setAdminSession] = useState<AdminCredentials | null>(() => {
-    try {
-      const saved = localStorage.getItem('placera_active_admin_session');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Authentication sessions are intentionally memory-only. Stored profiles and
+  // registered accounts remain available to the explicit login flow, but a
+  // refresh must never silently authenticate the first saved account.
+  const [adminSession, setAdminSession] = useState<AdminCredentials | null>(null);
 
   useEffect(() => {
-    try {
-      if (adminSession) {
-        localStorage.setItem('placera_active_admin_session', JSON.stringify(adminSession));
-      } else {
-        localStorage.removeItem('placera_active_admin_session');
-      }
-    } catch (e) {
-      console.warn('Failed to sync admin session:', e);
-    }
-  }, [adminSession]);
+    // Clear legacy session markers from older builds without touching account
+    // records stored in placera_registered_students.
+    localStorage.removeItem('placera_active_student_id');
+    localStorage.removeItem('placera_active_admin_session');
+  }, []);
 
   // User registered demo profiles in localStorage
   const [registeredStudents, setRegisteredStudents] = useState<StudentProfileData[]>(() => {
@@ -71,23 +62,7 @@ export default function App() {
     }
   });
 
-  const [student, setStudent] = useState<StudentProfileData | null>(() => {
-    try {
-      const savedActive = localStorage.getItem('placera_active_student_id');
-      const saved = localStorage.getItem('placera_registered_students');
-      const pool = saved ? JSON.parse(saved) : DEFAULT_REGISTERED_STUDENTS;
-      if (Array.isArray(pool) && pool.length > 0) {
-        if (savedActive) {
-          const match = pool.find(s => s.student_id === savedActive);
-          if (match) return match;
-        }
-        return pool[0];
-      }
-      return DEFAULT_REGISTERED_STUDENTS[0] || null;
-    } catch {
-      return DEFAULT_REGISTERED_STUDENTS[0] || null;
-    }
-  });
+  const [student, setStudent] = useState<StudentProfileData | null>(null);
 
   // Save registered students whenever updated
   useEffect(() => {
@@ -106,6 +81,17 @@ export default function App() {
 
   // Navigate with history tracking and security approval guard
   const navigateTo = (nextPage: ActivePage) => {
+    if (nextPage === 'landing') {
+      setStudent(null);
+      setAdminSession(null);
+      localStorage.removeItem('placera_active_student_id');
+      localStorage.removeItem('placera_active_admin_session');
+      setPageHistory([]);
+      setActivePage('landing');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     // If student is registered/logged in but verificationStatus !== 'Verified', protect access to recruitment features
     const protectedPages: ActivePage[] = ['pipeline', 'recommendations', 'jobs', 'skill-gap', 'dashboard'];
     if (student && student.verificationStatus !== 'Verified' && protectedPages.includes(nextPage)) {
@@ -128,6 +114,10 @@ export default function App() {
   const goBack = () => {
     if (pageHistory.length > 0) {
       const prevPage = pageHistory[pageHistory.length - 1];
+      if (prevPage === 'landing') {
+        navigateTo('landing');
+        return;
+      }
       setPageHistory(prev => prev.slice(0, -1));
       setActivePage(prevPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -145,6 +135,7 @@ export default function App() {
 
   const handleAdminLogout = () => {
     setAdminSession(null);
+    localStorage.removeItem('placera_active_admin_session');
     triggerToast("Placement Officer logged out.");
     if (activePage === 'admin') {
       navigateTo('landing');
@@ -167,6 +158,7 @@ export default function App() {
   // User Authentication & Profile Handlers
   const handleRegisterSuccess = (newProfile: StudentProfileData) => {
     setStudent(newProfile);
+    localStorage.setItem('placera_active_student_id', newProfile.student_id);
     setRegisteredStudents(prev => {
       const exists = prev.some(s => s.student_id === newProfile.student_id);
       if (exists) {
@@ -181,6 +173,7 @@ export default function App() {
 
   const handleLoginSuccess = (loggedInProfile: StudentProfileData) => {
     setStudent(loggedInProfile);
+    localStorage.setItem('placera_active_student_id', loggedInProfile.student_id);
     setShowAuthModal(false);
     triggerToast(`Welcome back, ${loggedInProfile.name}!`);
     if (loggedInProfile.verificationStatus !== 'Verified') {
@@ -192,8 +185,11 @@ export default function App() {
 
   const handleLogout = () => {
     setStudent(null);
+    localStorage.removeItem('placera_active_student_id');
+    setPageHistory([]);
     triggerToast("Logged out. Profile reset.");
-    navigateTo('landing');
+    setActivePage('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteStudent = (studentId: string) => {
@@ -399,6 +395,7 @@ export default function App() {
             recommendations={recommendations}
             setActivePage={navigateTo}
             onSelectJob={handleSelectJob}
+            onUpdateStudent={handleUpdateStudent}
             onOpenAuthModal={(mode) => {
               handleOpenAuthModal('student', mode || 'login');
             }}

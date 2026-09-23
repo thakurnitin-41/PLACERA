@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StudentProfileData, RecommendationResult, ActivePage } from '../types';
 import { 
   UserCheck, 
@@ -28,6 +28,9 @@ import {
   Area, 
   Cell 
 } from 'recharts';
+import { calculatePlacementReadiness, simulateImproveMyMatch } from '../services/readinessService';
+import { getTargetRoleInfo } from '../data/targetRoles';
+import { ResumeAnalyzer } from './ResumeAnalyzer';
 
 interface StudentDashboardProps {
   student: StudentProfileData | null;
@@ -36,6 +39,7 @@ interface StudentDashboardProps {
   onSelectJob: (rec: RecommendationResult) => void;
   onOpenAuthModal?: (mode?: 'login' | 'register') => void;
   onBack?: () => void;
+  onUpdateStudent?: (student: StudentProfileData) => void;
 }
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({
@@ -45,7 +49,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   onSelectJob,
   onOpenAuthModal,
   onBack,
+  onUpdateStudent,
 }) => {
+  const [simulatedSkills, setSimulatedSkills] = useState<string[]>([]);
+  const [extraDsa, setExtraDsa] = useState(0);
   // Compute Profile Completeness
   const profileCompleteness = useMemo(() => {
     if (!student) return 0;
@@ -111,6 +118,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   }
 
   const topRec = recommendations[0];
+  const readiness = useMemo(() => calculatePlacementReadiness(student, recommendations.map(r => r.job)), [student, recommendations]);
+  const roleSkillSuggestions = useMemo(
+    () => getTargetRoleInfo(student.preferred_role)?.coreSkills.filter(skill => !student.skills.includes(skill)).slice(0, 6) || [],
+    [student.preferred_role, student.skills]
+  );
+  const simulation = useMemo(() => simulateImproveMyMatch(student, recommendations.map(r => r.job), {
+    skillsToAdd: simulatedSkills,
+    extraLeetCodeCount: extraDsa,
+    certificationsToAdd: []
+  }), [student, recommendations, simulatedSkills, extraDsa]);
   const avgMatchScore = recommendations.length > 0
     ? Math.round(recommendations.reduce((acc, r) => acc + r.final_match_score, 0) / recommendations.length)
     : 0;
@@ -244,7 +261,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           </div>
           <div className="mt-3 flex items-baseline justify-between">
             <span className="text-3xl font-black text-slate-900">{recommendations.length}</span>
-            <span className="text-[11px] font-bold text-blue-600">Ranked by ML</span>
+            <span className="text-[11px] font-bold text-blue-600">Explainable scoring</span>
           </div>
           <p className="text-[11px] text-slate-400 mt-2">Filtered from 320 campus openings</p>
         </div>
@@ -275,9 +292,73 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             <span className="text-3xl font-black text-slate-900">{avgMatchScore}%</span>
             <span className="text-[11px] font-bold text-emerald-600">Strong Baseline</span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-2">Ensemble Cosine + Random Forest</p>
+          <p className="text-[11px] text-slate-400 mt-2">Cosine + criteria + skill coverage</p>
         </div>
       </div>
+
+      {/* Placement Readiness Index and Improve My Match */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 bg-slate-950 text-white rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-blue-300 font-bold">Placement Readiness Index</p>
+              <h2 className="text-4xl font-black mt-2">{readiness.overallReadinessScore}<span className="text-lg text-slate-400">/100</span></h2>
+            </div>
+            <Target className="w-8 h-8 text-blue-400" />
+          </div>
+          <p className="text-sm font-bold text-blue-200 mt-3">{readiness.tierTitle}</p>
+          <div className="grid grid-cols-2 gap-2 mt-5 text-xs">
+            {Object.entries(readiness.dimensionScores).map(([name, score]) => (
+              <div key={name} className="rounded-lg bg-white/10 p-2">
+                <span className="block text-slate-400 capitalize">{name.replace(/([A-Z])/g, ' $1')}</span>
+                <span className="font-bold">{score}%</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-slate-400 mt-4">{readiness.eligibleJobsCount} of {readiness.totalJobsCount} opportunities pass every configured eligibility rule.</p>
+        </div>
+
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-indigo-600 font-bold">Improve My Match</p>
+              <h2 className="text-lg font-black text-slate-900 mt-1">Simulate your next preparation step</h2>
+              <p className="text-xs text-slate-500 mt-1">This preview changes only the estimate; your saved profile is not modified.</p>
+            </div>
+            <div className="text-right">
+              <span className="text-2xl font-black text-indigo-600">{simulation.simulatedAverageMatch}%</span>
+              <span className="text-xs text-slate-500 block">after ({simulation.averageDelta >= 0 ? '+' : ''}{simulation.averageDelta})</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            {roleSkillSuggestions.map(skill => (
+              <button
+                key={skill}
+                type="button"
+                onClick={() => setSimulatedSkills(current => current.includes(skill) ? current.filter(item => item !== skill) : [...current, skill])}
+                className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold ${simulatedSkills.includes(skill) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-700 border-slate-200'}`}
+              >
+                {simulatedSkills.includes(skill) ? '✓ ' : '+ '}{skill}
+              </button>
+            ))}
+          </div>
+          <label className="flex items-center gap-3 text-xs font-semibold text-slate-700 mt-4">
+            <span>Extra DSA practice</span>
+            <input type="range" min="0" max="200" step="25" value={extraDsa} onChange={event => setExtraDsa(Number(event.target.value))} className="flex-1 accent-indigo-600" />
+            <span className="w-10 text-right text-indigo-700">+{extraDsa}</span>
+          </label>
+          <div className="flex flex-wrap gap-4 mt-4 text-xs text-slate-600">
+            <span>Before: <strong className="text-slate-900">{simulation.originalAverageMatch}%</strong></span>
+            <span>Eligible opportunities after: <strong className="text-emerald-700">{simulation.newlyEligibleJobCount + readiness.eligibleJobsCount}</strong></span>
+            <span>Selected skills: <strong className="text-slate-900">{simulatedSkills.length}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <ResumeAnalyzer
+        student={student}
+        onScoreSaved={score => onUpdateStudent?.({ ...student, atsResumeScore: score })}
+      />
 
       {/* Charts Grid: Visualizations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -321,7 +402,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               <p className="text-xs text-slate-500">Frequency of placement fit percentages</p>
             </div>
             <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-              Gaussian Curve
+              Score bands
             </span>
           </div>
 

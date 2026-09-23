@@ -278,7 +278,7 @@ export const PhoneInputWithCountry: React.FC<PhoneInputWithCountryProps> = ({
             value={phoneNumber}
             onChange={(e) => handleInputChange(e.target.value)}
             placeholder={isIndia ? '98765 43210 (or type +91...)' : selectedCountry.formatHint}
-            className={`w-full h-9.5 pl-8.5 pr-20 border border-slate-300 rounded-r-xl text-xs font-mono font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
+            className={`w-full h-9.5 pl-8.5 pr-20 border border-slate-300 rounded-r-xl text-xs font-mono text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all ${
               isValid ? 'border-emerald-400 bg-emerald-50/10' : cleanDigits.length > 0 ? 'border-amber-400' : ''
             }`}
           />

@@ -252,17 +252,17 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6">
-      <div className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden relative">
+      <div className="w-full max-w-xl bg-white border border-slate-200 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden relative isolate">
         
         {/* Top Restricted Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 relative">
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 pb-7 sm:pb-9 relative z-10">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 shadow-inner">
                 <ShieldCheck className="w-7 h-7 text-emerald-400" />
               </div>
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[11px] font-bold tracking-wide uppercase mb-1">
+                <div className="relative z-10 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300 text-[11px] font-bold tracking-wide uppercase mb-1">
                   <Lock className="w-3 h-3" />
                   <span>Restricted Access Area</span>
                 </div>
@@ -283,7 +283,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
           </div>
 
           <p className="mt-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
-            This administration gateway is strictly limited to authorized Training & Placement Officers (TPO), Heads of Department, and Dean credentials. Student logins are prohibited from accessing candidate verification dossiers and recruitment drive management.
+            Complete both checks in this single gateway: identify yourself with your institutional officer account, then provide its Master Security Passkey. Student logins are prohibited from accessing candidate verification dossiers and recruitment drive management.
           </p>
 
           {/* Warning Badge */}
@@ -296,7 +296,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
         </div>
 
         {/* Security Body */}
-        <div className="p-6 sm:p-8 space-y-6">
+        <div className="relative z-0 p-6 sm:p-8 space-y-6 border-t border-slate-200 bg-white">
           
           {/* View Switcher: Admin Login vs. Admin Register */}
           <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
@@ -365,6 +365,12 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
             <div className="space-y-5">
               
               {/* Login Method Toggle */}
+              <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs">
+                <div className="font-bold">Single-step officer verification</div>
+                <p className="mt-1 text-indigo-700 leading-relaxed">
+                  Your officer identity and security credential are verified together. No second sign-in screen is required.
+                </p>
+              </div>
               <div className="flex items-center p-1 bg-slate-50 rounded-xl border border-slate-200 text-xs">
                 <button
                   type="button"
@@ -376,7 +382,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
                   }`}
                 >
                   <KeyRound className="w-3.5 h-3.5" />
-                  <span>Institutional Passkey</span>
+                  <span>Officer + Master Passkey</span>
                 </button>
 
                 <button

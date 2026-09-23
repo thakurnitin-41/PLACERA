@@ -65,7 +65,8 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
   if (!recommendation) return null;
 
   const { job } = recommendation;
-  const isEligible = recommendation.gpa_eligible && recommendation.branch_eligible;
+  const isEligible = recommendation.eligibility_report?.overallStatus === 'Eligible'
+    || (recommendation.gpa_eligible && recommendation.branch_eligible);
 
   // Derive human-readable verdict
   const fitTier = recommendation.final_match_score >= 85 
@@ -214,10 +215,10 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
               <div className="bg-slate-800/60 border border-slate-700/70 p-3 rounded-xl space-y-1">
                 <div className="flex items-center justify-between text-slate-300 font-semibold">
                   <span>2. Profile Readiness</span>
-                  <span className="font-mono text-emerald-300 font-bold">{recommendation.rf_fit_score}%</span>
+                  <span className="font-mono text-emerald-300 font-bold">{recommendation.multi_criteria_fit_score}%</span>
                 </div>
                 <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${recommendation.rf_fit_score}%` }}></div>
+                  <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${recommendation.multi_criteria_fit_score}%` }}></div>
                 </div>
                 <span className="text-[10px] text-slate-400 block">GPA margin, projects & certs</span>
               </div>
@@ -263,6 +264,15 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="text-slate-600">Company Cutoff:</span>
                       <span className="font-bold text-slate-900">{job.minimum_gpa} / 10.0</span>
+                    </div>
+
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2 sm:col-span-3">
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                        Strict campus eligibility verdict
+                      </span>
+                      <p className={`font-bold ${isEligible ? 'text-emerald-700' : 'text-red-600'}`}>
+                        {isEligible ? 'Eligible for this configured drive' : `Not eligible: ${recommendation.eligibility_report?.notes.join(' ') || 'one or more hard criteria failed.'}`}
+                      </p>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-slate-600">Your CGPA:</span>
@@ -326,9 +336,9 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                     </p>
                   </div>
                   <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1">
-                    <span className="font-bold text-slate-800">Part B: Random Forest Classifier (40% Weight)</span>
+                    <span className="font-bold text-slate-800">Part B: Deterministic profile fit (35% Weight)</span>
                     <p className="text-slate-600 leading-relaxed">
-                      An ensemble of 100 decision trees evaluated structured tabular features: your CGPA safety buffer (+{gpaBuffer}), zero backlogs, relevant projects count, and branch qualification. Ensemble confidence yielded <strong>{recommendation.rf_fit_score}%</strong>.
+                      Structured features are scored with explicit weighted rules: your CGPA safety buffer (+{gpaBuffer}), backlog status, relevant projects, certifications, and branch qualification. This reproducible criteria score is <strong>{recommendation.multi_criteria_fit_score}%</strong>.
                     </p>
                   </div>
                 </div>
@@ -429,7 +439,7 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                     Certifications Boosting Your Score
                   </span>
                   <p className="text-[11px] text-slate-500">
-                    Credentials that strengthened your Random Forest fit score:
+                    Profile evidence that strengthened your criteria fit score:
                   </p>
                   <ul className="space-y-1.5 text-slate-700 list-disc list-inside pt-1">
                     {recommendation.relevant_certifications.map((cert, idx) => (

@@ -95,14 +95,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [regRoll, setRegRoll] = useState('');
-  const [regCollege, setRegCollege] = useState('Jaypee Institute of Information Technology (JIIT)');
-  const [regCollegeCity, setRegCollegeCity] = useState('Noida');
-  const [regCourse, setRegCourse] = useState<string>('B.Tech');
-  const [regBranch, setRegBranch] = useState<Branch>('CSE');
+  const [regCollege, setRegCollege] = useState('');
+  const [regCollegeCity, setRegCollegeCity] = useState('');
+  const [regCourse, setRegCourse] = useState<string>('');
+  const [regBranch, setRegBranch] = useState<Branch>('');
   const [customBranchInput, setCustomBranchInput] = useState('');
   const [isCustomBranch, setIsCustomBranch] = useState(false);
-  const [regAdmissionYear, setRegAdmissionYear] = useState<number>(2025);
-  const [regGradYear, setRegGradYear] = useState<number>(2029);
+  const [regAdmissionYear, setRegAdmissionYear] = useState<number>(0);
+  const [regGradYear, setRegGradYear] = useState<number>(0);
 
   // Available branches dynamically derived from selected course
   const availableBranchesForCourse = useMemo(() => {
@@ -128,17 +128,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setRegGradYear(regAdmissionYear + courseDef.durationYears);
     }
   };
-  const [regGPA, setRegGPA] = useState(8.2);
-  const [regTenth, setRegTenth] = useState(90.0);
-  const [regTwelfth, setRegTwelfth] = useState(88.0);
+  const [regGPA, setRegGPA] = useState(0);
+  const [regTenth, setRegTenth] = useState(0);
+  const [regTwelfth, setRegTwelfth] = useState(0);
   const [regBacklogs, setRegBacklogs] = useState(0);
-  const [regPreferredRole, setRegPreferredRole] = useState('Software Development Engineer');
-  const [regPreferredLocation, setRegPreferredLocation] = useState('Bangalore / Hyderabad / Pune');
-  const [regSkills, setRegSkills] = useState<string[]>(['Python', 'SQL', 'Data Structures & Algorithms', 'Machine Learning']);
+  const [regPreferredRole, setRegPreferredRole] = useState('');
+  const [regPreferredLocation, setRegPreferredLocation] = useState('');
+  const [regSkills, setRegSkills] = useState<string[]>([]);
   const [customSkillInput, setCustomSkillInput] = useState('');
-  const [regAvatarUrl, setRegAvatarUrl] = useState<string | undefined>(
-    AI_SUGGESTED_AVATARS[0]?.url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'
-  );
+  const [regAvatarUrl, setRegAvatarUrl] = useState<string | undefined>(undefined);
   const [regStudentProof, setRegStudentProof] = useState<StudentProofDocument | undefined>(undefined);
   const [regInitialAchievement, setRegInitialAchievement] = useState('');
   const [regError, setRegError] = useState<string | null>(null);
@@ -437,6 +435,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
     if (!regRoll.trim()) {
       setRegError('Roll Number / University Registration ID is mandatory.');
+      return;
+    }
+    if (!regCollege.trim() || !regCollegeCity.trim()) {
+      setRegError('Please enter your college / institute and campus city.');
+      return;
+    }
+    if (!regCourse || !regBranch) {
+      setRegError('Please select your degree / course and branch.');
       return;
     }
     if (!regPassword || regPassword.length < 6) {
@@ -1299,7 +1305,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           <select
                             value={regAdmissionYear}
                             onChange={(e) => {
-                              const adm = parseInt(e.target.value) || 2025;
+                              const adm = parseInt(e.target.value) || 0;
                               setRegAdmissionYear(adm);
                               const courseDef = getCourseById(regCourse);
                               const duration = courseDef?.durationYears || 4;
@@ -1307,6 +1313,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             }}
                             className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 bg-white font-mono font-medium"
                           >
+                            <option value={0} disabled>Select admission year</option>
                             {[2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026].map(yr => (
                               <option key={yr} value={yr}>{yr} (Admission Year)</option>
                             ))}
@@ -1317,9 +1324,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           <label className="block font-semibold text-slate-700 mb-1">Graduation Year *</label>
                           <select
                             value={regGradYear}
-                            onChange={(e) => setRegGradYear(parseInt(e.target.value) || 2029)}
+                            onChange={(e) => setRegGradYear(parseInt(e.target.value) || 0)}
                             className="w-full px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 bg-white font-mono font-medium"
                           >
+                            <option value={0} disabled>Select graduation year</option>
                             {[2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031].map(yr => (
                               <option key={yr} value={yr}>{yr} (Passing Out / Graduation)</option>
                             ))}
@@ -1370,9 +1378,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             <select
                               value={regCourse}
                               onChange={(e) => handleCourseChange(e.target.value)}
-                              className="w-full px-3 py-2 border border-indigo-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 bg-white font-bold text-indigo-950 cursor-pointer"
+                              className="w-full px-3 py-2 border border-indigo-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 bg-white text-slate-700 cursor-pointer"
                               id="reg-course-select"
                             >
+                              <option value="" disabled>Select degree / course</option>
                               {INDIAN_HIGHER_EDUCATION_COURSES.map((course) => (
                                 <option key={course.id} value={course.id}>
                                   {course.displayName}
@@ -1397,9 +1406,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                                   setRegBranch(e.target.value as Branch);
                                 }
                               }}
-                              className="w-full px-3 py-2 border border-indigo-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 bg-white font-medium text-slate-900 cursor-pointer"
+                              className="w-full px-3 py-2 border border-indigo-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 bg-white text-slate-700 cursor-pointer"
                               id="reg-branch-select"
                             >
+                              <option value="" disabled>Select branch / department</option>
                               {availableBranchesForCourse.map((br) => (
                                 <option key={br.code} value={br.code}>
                                   {br.name} {br.category ? `(${br.category})` : ''}

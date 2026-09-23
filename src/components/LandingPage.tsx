@@ -99,7 +99,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal max-w-2xl mx-auto">
               <strong>PLACERA</strong> is an intelligent placement matching engine that evaluates engineering students 
               beyond basic CGPA cutoffs. By analyzing verified programming competencies, academic metrics, 
-              and achievements against <strong>300+ campus recruiter profiles</strong>, PLACERA predicts your top-fit job roles 
+              and achievements against <strong>synthetic campus opportunity profiles</strong>, PLACERA estimates your top-fit job roles
               and generates personalized interview roadmaps.
             </p>
 
@@ -150,11 +150,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="pt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-slate-500 text-xs font-medium border-t border-slate-100 max-w-xl mx-auto">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>500+ Student Benchmark</span>
+                <span>Local profile benchmark</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>300+ Verified Campus Roles</span>
+                <span>25+ synthetic roles</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -204,7 +204,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <h3 className="text-base font-bold text-slate-900">Explainable AI & Fair Shortlisting</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              No black-box rejections. Students and placement coordinators get a complete breakdown showing TF-IDF similarity, Random Forest suitability, and exact matching skills.
+              No black-box rejections. Students and placement coordinators get a complete breakdown showing TF-IDF similarity, deterministic profile fit, eligibility, and exact matching skills.
             </p>
             <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 text-[11px] font-semibold text-purple-700">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
@@ -336,10 +336,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
                 <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-1.5">
                   <Binary className="w-4 h-4 text-purple-600" />
-                  <span>TF-IDF & Random Forest</span>
+                  <span>TF-IDF & weighted criteria</span>
                 </h3>
                 <p className="text-xs text-slate-600 leading-relaxed mb-3">
-                  The AI pipeline vectorizes profile text, measures Cosine Similarity against 300+ jobs, and runs an ensemble Random Forest classifier to compute placement probability.
+                  The AI pipeline vectorizes profile text, measures Cosine Similarity against synthetic demo opportunities, and combines explicit skill, academic, project, and role-alignment criteria into an explainable match score.
                 </p>
                 <div className="space-y-1 bg-white rounded-lg p-2.5 border border-slate-200 text-[11px] text-slate-600 font-mono">
                   <div className="flex justify-between">

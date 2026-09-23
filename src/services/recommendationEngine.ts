@@ -1,4 +1,5 @@
 import { JobPosting, RecommendationResult, StudentProfileData, SkillGapItem } from '../types';
+import { evaluateEligibility } from './eligibilityService';
 
 // Academic Stopwords list for NLP preprocessing
 const STOP_WORDS = new Set([
@@ -94,11 +95,11 @@ export function calculateCosineSimilarity(textA: string, textB: string): number 
 }
 
 /**
- * Random Forest Placement Fit Classifier (Academic Simulation):
- * In Python PBL: RandomForestClassifier trained on 500+ student records with features:
- * [cosine_sim, gpa_ratio, project_count, cert_count, branch_compat, exp_weight]
+ * Deterministic multi-criteria fit score.
+ * This is intentionally not presented as a trained classifier: no model or
+ * labelled training dataset ships with the client application.
  */
-export function predictRandomForestFit(
+export function calculateMultiCriteriaFit(
   student: StudentProfileData,
   job: JobPosting,
   cosineScore: number
@@ -163,8 +164,8 @@ export function predictRandomForestFit(
   }
 
   // Ensemble Aggregate (0 - 100)
-  const rawRF = gpaScore + simFeatureScore + branchScore + projectScore + cpScore + academicCoreScore + achievementScore;
-  return Math.round(Math.min(99, Math.max(25, rawRF)));
+  const rawFit = gpaScore + simFeatureScore + branchScore + projectScore + cpScore + academicCoreScore + achievementScore;
+  return Math.round(Math.min(99, Math.max(25, rawFit)));
 }
 
 /**
@@ -190,7 +191,8 @@ export function analyzeSkillsOverlap(studentSkills: string[], jobSkills: string[
 
 /**
  * Complete Placement Recommendation Engine:
- * Student Profile + Job Data -> Pre-processing -> TF-IDF -> Cosine Sim -> Random Forest -> Ranked Recommendations
+ * Student Profile + Job Data -> TF-IDF -> cosine similarity -> deterministic
+ * multi-criteria fit -> direct skill coverage -> ranked recommendations.
  */
 export function generateRecommendations(
   student: StudentProfileData | null,
@@ -214,11 +216,10 @@ export function generateRecommendations(
     const cosineRaw = calculateCosineSimilarity(studentProfileCorpus, jobCorpus);
     const cosineScore = Math.round(cosineRaw * 100);
 
-    // Stage 3: Random Forest Classifier Fit Score
-    const rfFitScore = predictRandomForestFit(student, job, cosineScore);
+    // Stage 3: transparent deterministic structured-profile score
+    const multiCriteriaFitScore = calculateMultiCriteriaFit(student, job, cosineScore);
 
-    // Stage 4: Weighted Ensembling (50% Skill/Text Cosine Similarity + 50% Random Forest Holistic Fit)
-    // Skill overlap directly boosts match %
+    // Stage 4: weighted, explainable blend
     const { matching, missing } = analyzeSkillsOverlap(student.skills, job.required_skills);
     const skillOverlapRatio = job.required_skills.length > 0
       ? matching.length / job.required_skills.length
@@ -227,14 +228,24 @@ export function generateRecommendations(
     const skillOverlapPercent = Math.round(skillOverlapRatio * 100);
 
     // Final blended match percentage
-    let finalMatch = Math.round((cosineScore * 0.35) + (rfFitScore * 0.35) + (skillOverlapPercent * 0.30));
+    const roleInfo = student.preferred_role
+      ? `${student.preferred_role} ${job.job_title}`.toLowerCase()
+      : '';
+    const targetRoleBonus = roleInfo.includes(job.job_title.toLowerCase().split(' ')[0]) ? 5 : 0;
+    let finalMatch = Math.round(
+      (cosineScore * 0.35) +
+      (multiCriteriaFitScore * 0.35) +
+      (skillOverlapPercent * 0.30) +
+      targetRoleBonus
+    );
 
     // Cap boundaries
     finalMatch = Math.min(98, Math.max(30, finalMatch));
 
     // Academic Explainability Generator
-    const gpaEligible = student.GPA >= job.minimum_gpa;
-    const branchEligible = job.eligible_branches.includes(student.branch);
+    const eligibilityReport = evaluateEligibility(student, job);
+    const gpaEligible = eligibilityReport.cgpaPassed;
+    const branchEligible = eligibilityReport.branchPassed;
 
     // Relevant projects finding
     const normReqs = job.required_skills.map(normalizeSkill);
@@ -285,7 +296,9 @@ export function generateRecommendations(
       student_id: student.student_id,
       job,
       cosine_similarity_score: cosineScore,
-      rf_fit_score: rfFitScore,
+      multi_criteria_fit_score: multiCriteriaFitScore,
+      // Kept as a read-only compatibility alias for older consumers.
+      rf_fit_score: multiCriteriaFitScore,
       final_match_score: finalMatch,
       matching_skills: matching,
       missing_skills: missing,
@@ -294,6 +307,33 @@ export function generateRecommendations(
       relevant_projects: relevantProjects.length > 0 ? relevantProjects : ['Relevant Coursework & Lab Assignments'],
       relevant_certifications: relevantCerts.length > 0 ? relevantCerts : ['Degree Program Core Curriculum'],
       recommendation_reason: reason,
+      score_breakdown: {
+        semantic_nlp_score: cosineScore,
+        multi_criteria_fit_score: multiCriteriaFitScore,
+        skill_overlap_score: skillOverlapPercent,
+        target_role_bonus: targetRoleBonus,
+        reasons: [
+          {
+            type: matching.length > 0 ? 'positive' : 'warning',
+            title: 'Required-skill coverage',
+            detail: `${matching.length} of ${job.required_skills.length} required skills are present.`,
+            weightImpact: '30% of match score'
+          },
+          {
+            type: eligibilityReport.overallStatus === 'Eligible' ? 'positive' : 'warning',
+            title: 'Campus eligibility',
+            detail: eligibilityReport.notes.join(' '),
+            weightImpact: 'Shown separately; never hidden by match score'
+          },
+          {
+            type: targetRoleBonus > 0 ? 'positive' : 'info',
+            title: 'Target-role alignment',
+            detail: targetRoleBonus > 0 ? 'Target role aligns with this opportunity.' : 'No direct title alignment bonus applied.',
+            weightImpact: `${targetRoleBonus} points`
+          }
+        ]
+      },
+      eligibility_report: eligibilityReport,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
   });
