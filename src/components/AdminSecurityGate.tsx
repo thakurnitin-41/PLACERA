@@ -58,6 +58,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
   // Sign In states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [pin, setPin] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -400,7 +401,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
               </div>
 
               {loginMethod === 'passkey' ? (
-                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                <form onSubmit={handlePasswordSubmit} className="space-y-4" autoComplete="on">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       Officer Institutional Email / Admin ID *
@@ -408,6 +409,8 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
                     <div className="relative">
                       <input
                         type="email"
+                        name="adminEmail"
+                        autoComplete="username"
                         required
                         id="admin-email-input"
                         value={email}
@@ -429,6 +432,8 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
+                        name="adminPassword"
+                        autoComplete="current-password"
                         required
                         id="admin-password-input"
                         value={password}
@@ -446,6 +451,17 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
                       </button>
                     </div>
                   </div>
+
+                  <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      name="rememberMe"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span>Remember me (allow browser password manager to save this login)</span>
+                  </label>
 
                   <button
                     type="submit"
@@ -508,7 +524,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
 
           {/* VIEW 2: REGISTER NEW PLACEMENT OFFICER */}
           {view === 'register' && (
-            <form onSubmit={handleRegisterAdmin} className="space-y-4">
+            <form onSubmit={handleRegisterAdmin} className="space-y-4" autoComplete="on">
               <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl text-xs text-indigo-900">
                 <p className="font-semibold">
                   Registering a new Placement Coordinator or Officer grants authority to verify student proof documents, manage recruitment drives, and view candidate dossiers.
@@ -591,6 +607,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
                   </div>
                   <input
                     type={showRegPasskey ? 'text' : 'password'}
+                    autoComplete="new-password"
                     required
                     placeholder="Min 6 chars"
                     value={regPasskey}
@@ -605,6 +622,7 @@ export const AdminSecurityGate: React.FC<AdminSecurityGateProps> = ({
                   </label>
                   <input
                     type={showRegPasskey ? 'text' : 'password'}
+                    autoComplete="new-password"
                     required
                     placeholder="Repeat passkey"
                     value={regConfirmPasskey}
