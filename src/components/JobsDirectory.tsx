@@ -55,9 +55,6 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
         const text = `${j.company} ${j.job_title} ${j.location} ${j.description} ${j.required_skills.join(' ')}`.toLowerCase();
         if (!text.includes(search.toLowerCase())) return false;
       }
-      if (cityFilter !== 'all' && !splitCities(j.location).some(city => normalizeCity(city) === normalizeCity(cityFilter))) {
-        return false;
-      }
       if (branchFilter !== 'all' && !j.eligible_branches.includes(branchFilter as any)) {
         return false;
       }
@@ -65,6 +62,12 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
         return false;
       }
       return true;
+    }).sort((a, b) => {
+      if (cityFilter === 'all') return 0;
+      const preferred = normalizeCity(cityFilter);
+      const aMatches = splitCities(a.location).some(city => normalizeCity(city) === preferred);
+      const bMatches = splitCities(b.location).some(city => normalizeCity(city) === preferred);
+      return Number(bMatches) - Number(aMatches);
     });
   }, [jobs, search, branchFilter, categoryFilter, cityFilter]);
 

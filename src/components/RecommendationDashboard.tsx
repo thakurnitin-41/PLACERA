@@ -82,23 +82,11 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
   const filteredRecs = useMemo(() => {
     return recommendations.filter(rec => {
       // Search query filter
-      const text = `${rec.job.company} ${rec.job.job_title} ${rec.job.description}`.toLowerCase();
+      const text = `${rec.job.company} ${rec.job.job_title} ${rec.job.location} ${rec.job.description}`.toLowerCase();
       if (searchQuery && !text.includes(searchQuery.toLowerCase())) return false;
 
       // Min Match Threshold
       if (rec.final_match_score < minMatchThreshold) return false;
-
-      // Location filter: Manual city text takes precedence, else selected dropdown
-      const cityQuery = manualCity.trim().toLowerCase();
-      if (cityQuery) {
-        if (!rec.job.location.toLowerCase().includes(cityQuery)) {
-          return false;
-        }
-      } else if (selectedLocation !== 'all') {
-        if (!rec.job.location.toLowerCase().includes(selectedLocation.toLowerCase())) {
-          return false;
-        }
-      }
 
       // Experience level filter (expanded options)
       if (selectedExp !== 'all') {
@@ -116,6 +104,14 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
 
       return true;
     }).sort((a, b) => {
+      // Location is a preference signal, not a hard gate: keep opportunities
+      // in other cities visible when the requested city has no exact match.
+      const preferredCity = (manualCity.trim() || (selectedLocation !== 'all' ? selectedLocation : '')).toLowerCase();
+      if (preferredCity) {
+        const aPreferred = a.job.location.toLowerCase().includes(preferredCity);
+        const bPreferred = b.job.location.toLowerCase().includes(preferredCity);
+        if (aPreferred !== bPreferred) return aPreferred ? -1 : 1;
+      }
       if (sortBy === 'match-desc') return b.final_match_score - a.final_match_score;
       if (sortBy === 'match-asc') return a.final_match_score - b.final_match_score;
       if (sortBy === 'salary-desc') return parseSalaryLPA(b.job.ctc_range) - parseSalaryLPA(a.job.ctc_range);
@@ -366,6 +362,11 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
           <span>Showing {filteredRecs.length} ranked opportunities</span>
           <span>Ranked by explainable cosine + multi-criteria scoring</span>
         </div>
+        {(manualCity || selectedLocation !== 'all') && (
+        <div className="px-3 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-800">
+          City preference is used to prioritize matching opportunities. Jobs in other cities remain visible so you can still explore every available placement.
+        </div>
+        )}
 
         {filteredRecs.length === 0 ? (
           <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
