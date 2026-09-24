@@ -32,12 +32,31 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
   const [search, setSearch] = useState('');
   const [branchFilter, setBranchFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [cityFilter, setCityFilter] = useState('all');
+
+  const normalizeCity = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+  const splitCities = (value: string) => value
+    .split(/\s*\/\s*|\s*,\s*|\s*\|\s*/)
+    .map(city => city.replace(/\([^)]*\)/g, '').trim())
+    .filter(Boolean);
+
+  const cityOptions = useMemo(() => {
+    const values = jobs.flatMap(job => splitCities(job.location));
+    if (student?.preferred_location) {
+      values.push(...splitCities(student.preferred_location));
+    }
+    return Array.from(new Map(values.map(city => [normalizeCity(city), city])).values())
+      .sort((a, b) => a.localeCompare(b));
+  }, [jobs, student?.preferred_location]);
 
   const filtered = useMemo(() => {
     return jobs.filter(j => {
       if (search) {
-        const text = `${j.company} ${j.job_title} ${j.description} ${j.required_skills.join(' ')}`.toLowerCase();
+        const text = `${j.company} ${j.job_title} ${j.location} ${j.description} ${j.required_skills.join(' ')}`.toLowerCase();
         if (!text.includes(search.toLowerCase())) return false;
+      }
+      if (cityFilter !== 'all' && !splitCities(j.location).some(city => normalizeCity(city) === normalizeCity(cityFilter))) {
+        return false;
       }
       if (branchFilter !== 'all' && !j.eligible_branches.includes(branchFilter as any)) {
         return false;
@@ -47,7 +66,7 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
       }
       return true;
     });
-  }, [jobs, search, branchFilter, categoryFilter]);
+  }, [jobs, search, branchFilter, categoryFilter, cityFilter]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
@@ -145,6 +164,17 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <select
+            value={cityFilter}
+            onChange={(e) => setCityFilter(e.target.value)}
+            className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white text-slate-700"
+          >
+            <option value="all">All Job Cities</option>
+            {cityOptions.map(city => (
+              <option key={normalizeCity(city)} value={city}>{city}</option>
+            ))}
+          </select>
+
           <select
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
