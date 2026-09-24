@@ -429,7 +429,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          {(student || adminSession) && navItems.map((item) => {
+          {(student || adminSession) && navItems.filter(item => item.id !== 'admin' || !!adminSession).map((item) => {
             const isActive = activePage === item.id;
             return (
               <button

@@ -23,7 +23,6 @@ interface VerificationWaitingGateProps {
   student: StudentProfileData;
   onRefreshStatus?: () => void;
   onOpenProfile?: () => void;
-  onOpenAdminPortal?: () => void;
   onLogout?: () => void;
 }
 
@@ -31,7 +30,6 @@ export const VerificationWaitingGate: React.FC<VerificationWaitingGateProps> = (
   student,
   onRefreshStatus,
   onOpenProfile,
-  onOpenAdminPortal,
   onLogout,
 }) => {
   const [showDocModal, setShowDocModal] = useState(false);
@@ -90,18 +88,6 @@ export const VerificationWaitingGate: React.FC<VerificationWaitingGateProps> = (
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
               <span>Check Approval Status</span>
             </button>
-            
-            {onOpenAdminPortal && (
-              <button
-                type="button"
-                onClick={onOpenAdminPortal}
-                className="px-4 py-2.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 border border-slate-700 active:scale-95"
-                title="Switch to Admin Dashboard to review & approve this request"
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Open Admin Portal (TPO Demo)</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
