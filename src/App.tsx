@@ -197,6 +197,12 @@ export default function App() {
     }
   };
 
+  const handleStudentPasswordReset = (updatedStudent: StudentProfileData) => {
+    setRegisteredStudents(prev => prev.map(existing =>
+      existing.student_id === updatedStudent.student_id ? updatedStudent : existing
+    ));
+  };
+
   const handleLogout = () => {
     setStudent(null);
     localStorage.removeItem('placera_active_student_id');
@@ -527,6 +533,7 @@ export default function App() {
           registeredStudents={registeredStudents}
           onRegisterSuccess={handleRegisterSuccess}
           onDeleteStudent={handleDeleteStudent}
+          onStudentPasswordReset={handleStudentPasswordReset}
           onAdminAuthSuccess={(session) => {
             setAdminSession(session);
             setShowAuthModal(false);

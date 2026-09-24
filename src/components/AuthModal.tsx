@@ -51,6 +51,7 @@ interface AuthModalProps {
   registeredStudents?: StudentProfileData[];
   onRegisterSuccess: (student: StudentProfileData) => void;
   onDeleteStudent?: (studentId: string) => void;
+  onStudentPasswordReset?: (student: StudentProfileData) => void;
   initialRole?: 'student' | 'admin';
   initialMode?: 'login' | 'register';
   onAdminAuthSuccess?: (adminSession: AdminCredentials) => void;
@@ -69,6 +70,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   registeredStudents = [],
   onRegisterSuccess,
   onDeleteStudent,
+  onStudentPasswordReset,
   initialRole = 'student',
   initialMode = 'register',
   onAdminAuthSuccess,
@@ -85,6 +87,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isVerifyingLogin, setIsVerifyingLogin] = useState(false);
+  const [showPasswordRecovery, setShowPasswordRecovery] = useState(false);
+  const [recoveryIdentifier, setRecoveryIdentifier] = useState('');
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveryPassword, setRecoveryPassword] = useState('');
+  const [recoveryConfirmPassword, setRecoveryConfirmPassword] = useState('');
+  const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
 
   // Student Registration form states
   const [regName, setRegName] = useState('');
@@ -291,6 +299,51 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } finally {
       setIsVerifyingLogin(false);
     }
+  };
+
+  const handlePasswordRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryMessage(null);
+
+    const identifier = recoveryIdentifier.trim().toLowerCase();
+    const email = recoveryEmail.trim().toLowerCase();
+    const matchedStudent = registeredStudents.find(s => {
+      const identifiers = [s.email, s.collegeEmail, s.personalEmail, s.rollNumber, s.student_id]
+        .filter(Boolean)
+        .map(value => value!.toLowerCase());
+      const registeredEmails = [s.email, s.collegeEmail, s.personalEmail]
+        .filter(Boolean)
+        .map(value => value!.toLowerCase());
+      return identifiers.includes(identifier) && registeredEmails.includes(email);
+    });
+
+    if (!matchedStudent) {
+      setRecoveryMessage('We could not verify those details. Use your own student identifier and registered email.');
+      return;
+    }
+    if (recoveryPassword.length < 8) {
+      setRecoveryMessage('New password must be at least 8 characters long.');
+      return;
+    }
+    if (recoveryPassword !== recoveryConfirmPassword) {
+      setRecoveryMessage('New password and confirmation do not match.');
+      return;
+    }
+
+    const { hash: passwordHash, salt: passwordSalt } = await hashPassword(recoveryPassword);
+    const updatedStudent: StudentProfileData = {
+      ...matchedStudent,
+      passwordHash,
+      passwordSalt,
+      password: undefined
+    };
+    onStudentPasswordReset?.(updatedStudent);
+    setRecoveryMessage('Password reset successfully. Return to sign in with your new password.');
+    setRecoveryIdentifier('');
+    setRecoveryEmail('');
+    setRecoveryPassword('');
+    setRecoveryConfirmPassword('');
+    setShowPasswordRecovery(false);
   };
 
   // Student Quick Select
@@ -1044,6 +1097,78 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             <span>{isVerifyingLogin ? 'Verifying Password...' : 'Sign In as Student'}</span>
                           </button>
                         </form>
+
+                        <div className="pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowPasswordRecovery(previous => !previous);
+                              setRecoveryMessage(null);
+                            }}
+                            className="text-xs font-semibold text-indigo-700 hover:text-indigo-900 hover:underline cursor-pointer"
+                          >
+                            {showPasswordRecovery ? 'Back to sign in' : 'Forgot password?'}
+                          </button>
+                        </div>
+
+                        {showPasswordRecovery && (
+                          <form onSubmit={handlePasswordRecovery} className="p-4 space-y-3 bg-indigo-50/60 border border-indigo-200 rounded-2xl">
+                            <div>
+                              <h4 className="text-sm font-bold text-indigo-950">Recover your student account</h4>
+                              <p className="mt-1 text-[11px] text-indigo-700 leading-relaxed">
+                                Verify your student identifier and a registered email before setting a new password.
+                              </p>
+                            </div>
+                            {recoveryMessage && (
+                              <div className="p-2.5 bg-white border border-indigo-200 rounded-xl text-indigo-800 text-xs">
+                                {recoveryMessage}
+                              </div>
+                            )}
+                            <input
+                              type="text"
+                              required
+                              value={recoveryIdentifier}
+                              onChange={(e) => setRecoveryIdentifier(e.target.value)}
+                              placeholder="Roll number, student ID, or email"
+                              className="w-full px-3 py-2 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-xs"
+                            />
+                            <input
+                              type="email"
+                              required
+                              value={recoveryEmail}
+                              onChange={(e) => setRecoveryEmail(e.target.value)}
+                              placeholder="Registered college or personal email"
+                              className="w-full px-3 py-2 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-xs"
+                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <input
+                                type="password"
+                                required
+                                value={recoveryPassword}
+                                onChange={(e) => setRecoveryPassword(e.target.value)}
+                                placeholder="New password (8+ characters)"
+                                className="w-full px-3 py-2 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-xs"
+                              />
+                              <input
+                                type="password"
+                                required
+                                value={recoveryConfirmPassword}
+                                onChange={(e) => setRecoveryConfirmPassword(e.target.value)}
+                                placeholder="Confirm new password"
+                                className="w-full px-3 py-2 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-xs"
+                              />
+                            </div>
+                            <button
+                              type="submit"
+                              className="w-full py-2.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl cursor-pointer"
+                            >
+                              Reset Password
+                            </button>
+                            <p className="text-[10px] text-indigo-600 leading-relaxed">
+                              This local recovery flow updates the saved profile on this browser. Production deployments should connect this step to a verified email service.
+                            </p>
+                          </form>
+                        )}
 
                       </>
                     )}
