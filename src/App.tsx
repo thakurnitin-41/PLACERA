@@ -391,6 +391,7 @@ export default function App() {
         {activePage === 'recommendations' && (
           <RecommendationDashboard
             recommendations={recommendations}
+            preferredLocation={student?.preferred_location}
             onSelectJob={handleSelectJob}
             setActivePage={navigateTo}
             onBack={goBack}

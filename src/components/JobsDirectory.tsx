@@ -34,10 +34,15 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
 
-  const normalizeCity = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+  const normalizeCity = (value: string) => value
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/[.&'-]/g, ' ')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
   const splitCities = (value: string) => value
-    .split(/\s*\/\s*|\s*,\s*|\s*\|\s*/)
-    .map(city => city.replace(/\([^)]*\)/g, '').trim())
+    .split(/\s*\/\s*|\s*,\s*|\s*\|\s*|\s*;\s*/)
+    .map(normalizeCity)
     .filter(Boolean);
 
   const cityOptions = useMemo(() => {
@@ -65,8 +70,8 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
     }).sort((a, b) => {
       if (cityFilter === 'all') return 0;
       const preferred = normalizeCity(cityFilter);
-      const aMatches = splitCities(a.location).some(city => normalizeCity(city) === preferred);
-      const bMatches = splitCities(b.location).some(city => normalizeCity(city) === preferred);
+      const aMatches = splitCities(a.location).some(city => city === preferred || city.includes(preferred) || preferred.includes(city));
+      const bMatches = splitCities(b.location).some(city => city === preferred || city.includes(preferred) || preferred.includes(city));
       return Number(bMatches) - Number(aMatches);
     });
   }, [jobs, search, branchFilter, categoryFilter, cityFilter]);

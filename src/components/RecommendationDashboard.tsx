@@ -23,6 +23,7 @@ import {
 
 interface RecommendationDashboardProps {
   recommendations: RecommendationResult[];
+  preferredLocation?: string;
   onSelectJob: (rec: RecommendationResult) => void;
   setActivePage: (page: ActivePage) => void;
   onBack?: () => void;
@@ -36,8 +37,33 @@ const parseSalaryLPA = (ctc: string | undefined): number => {
   return Math.max(...matches.map(Number));
 };
 
+const normalizeCity = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/[.&'-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const splitCities = (value: string): string[] =>
+  value
+    .split(/\s*\/\s*|\s*,\s*|\s*\|\s*|\s*;\s*/)
+    .map(normalizeCity)
+    .filter(Boolean);
+
+const cityMatchesLocation = (city: string, location: string): boolean => {
+  const requestedCities = splitCities(city);
+  const availableCities = splitCities(location);
+  return requestedCities.some(requested => availableCities.some(available => (
+    available === requested ||
+    available.includes(requested) ||
+    requested.includes(available)
+  )));
+};
+
 export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = ({
   recommendations,
+  preferredLocation,
   onSelectJob,
   setActivePage,
   onBack,
@@ -67,15 +93,13 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
 
   // Extract unique filter lists
   const uniqueLocations = useMemo(() => {
-    const locs = new Set<string>();
+    const locs = new Map<string, string>();
     recommendations.forEach(r => {
-      const parts = r.job.location.split('/');
-      parts.forEach(p => {
-        const clean = p.replace(/\(.*\)/, '').trim();
-        if (clean) locs.add(clean);
+      splitCities(r.job.location).forEach(city => {
+        if (!locs.has(city)) locs.set(city, city);
       });
     });
-    return Array.from(locs).sort();
+    return Array.from(locs.values()).sort();
   }, [recommendations]);
 
   // Filtered recommendations
@@ -106,10 +130,12 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
     }).sort((a, b) => {
       // Location is a preference signal, not a hard gate: keep opportunities
       // in other cities visible when the requested city has no exact match.
-      const preferredCity = (manualCity.trim() || (selectedLocation !== 'all' ? selectedLocation : '')).toLowerCase();
+      const preferredCity = manualCity.trim() || (
+        selectedLocation !== 'all' ? selectedLocation : (preferredLocation || '')
+      );
       if (preferredCity) {
-        const aPreferred = a.job.location.toLowerCase().includes(preferredCity);
-        const bPreferred = b.job.location.toLowerCase().includes(preferredCity);
+        const aPreferred = cityMatchesLocation(preferredCity, a.job.location);
+        const bPreferred = cityMatchesLocation(preferredCity, b.job.location);
         if (aPreferred !== bPreferred) return aPreferred ? -1 : 1;
       }
       if (sortBy === 'match-desc') return b.final_match_score - a.final_match_score;
@@ -121,7 +147,7 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
       if (sortBy === 'company-asc') return a.job.company.localeCompare(b.job.company);
       return 0;
     });
-  }, [recommendations, searchQuery, minMatchThreshold, selectedLocation, manualCity, selectedExp, onlyEligible, sortBy]);
+  }, [recommendations, searchQuery, minMatchThreshold, selectedLocation, manualCity, preferredLocation, selectedExp, onlyEligible, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-16">
@@ -362,9 +388,12 @@ export const RecommendationDashboard: React.FC<RecommendationDashboardProps> = (
           <span>Showing {filteredRecs.length} ranked opportunities</span>
           <span>Ranked by explainable cosine + multi-criteria scoring</span>
         </div>
-        {(manualCity || selectedLocation !== 'all') && (
+        {(manualCity || selectedLocation !== 'all' || preferredLocation) && (
         <div className="px-3 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-800">
-          City preference is used to prioritize matching opportunities. Jobs in other cities remain visible so you can still explore every available placement.
+          {manualCity || selectedLocation !== 'all'
+            ? `Prioritizing ${manualCity || selectedLocation}.`
+            : `Prioritizing your saved location: ${preferredLocation}.`
+          } Jobs in other cities remain visible so you can still explore every available placement.
         </div>
         )}
 
