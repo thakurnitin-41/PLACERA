@@ -175,35 +175,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Nav Items */}
-          <nav className="hidden xl:flex items-center space-x-1">
-            {navItems.map((item) => {
-              const isActive = activePage === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActivePage(item.id)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer relative ${
-                    isActive 
-                      ? 'text-indigo-600 bg-indigo-50 font-bold' 
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="ml-1 bg-indigo-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
-                  {isActive && (
-                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-indigo-600 rounded-full" />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
           {/* User Auth, Profile & Dual Portals */}
           <div className="hidden sm:flex items-center gap-2.5">
             {student ? (
@@ -367,7 +338,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Mobile menu button & quick profile indicator */}
-          <div className="flex xl:hidden items-center gap-2">
+          <div className="flex items-center gap-2">
             {student ? (
               <button
                 onClick={() => setActivePage('profile')}
@@ -413,7 +384,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg animate-in slide-in-from-top-2">
+        <div className="bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg animate-in slide-in-from-top-2">
           {student && (
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
@@ -458,7 +429,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          {navItems.map((item) => {
+          {(student || adminSession) && navItems.map((item) => {
             const isActive = activePage === item.id;
             return (
               <button
