@@ -84,6 +84,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Student Login form states
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [rememberStudent, setRememberStudent] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isVerifyingLogin, setIsVerifyingLogin] = useState(false);
@@ -154,6 +155,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Admin Portal Login & Register states
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
+  const [rememberAdmin, setRememberAdmin] = useState(false);
   const [adminPin, setAdminPin] = useState('');
   const [adminAuthType, setAdminAuthType] = useState<'passkey' | 'pin'>('passkey');
   const [showAdminPass, setShowAdminPass] = useState(false);
@@ -536,7 +538,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         personalEmail: regPersonalEmail.trim(),
         contactNumber: regContactNumber.trim(),
         email: regCollegeEmail.trim(),
-        password: regPassword,
         passwordHash,
         passwordSalt,
         verificationStatus: 'Pending Review',
@@ -715,7 +716,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <div className="space-y-5">
                 {mode === 'login' ? (
                   /* ADMIN SIGN IN */
-                  <form onSubmit={handleAdminLoginSubmit} className="space-y-4">
+                  <form onSubmit={handleAdminLoginSubmit} className="space-y-4" autoComplete="on">
                     <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-emerald-900 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -779,6 +780,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                             <input
                               type="email"
+                              name="adminEmail"
+                              autoComplete="username"
                               value={adminEmail}
                               onChange={(e) => setAdminEmail(e.target.value)}
                               placeholder="tpo.officer@campus.edu"
@@ -795,6 +798,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                             <input
                               type={showAdminPass ? "text" : "password"}
+                              name="adminPassword"
+                              autoComplete="current-password"
                               value={adminPassword}
                               onChange={(e) => setAdminPassword(e.target.value)}
                               placeholder="Enter master passkey"
@@ -809,6 +814,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             </button>
                           </div>
                         </div>
+                        <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="rememberAdmin"
+                            checked={rememberAdmin}
+                            onChange={(e) => setRememberAdmin(e.target.checked)}
+                            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <span>Remember me (allow browser password manager to save this login)</span>
+                        </label>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -860,7 +875,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </form>
                 ) : (
                   /* ADMIN REGISTRATION */
-                  <form onSubmit={handleAdminRegisterSubmit} className="space-y-4">
+                  <form onSubmit={handleAdminRegisterSubmit} className="space-y-4" autoComplete="on">
                     <div className="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-emerald-900">
                       <div className="flex items-center gap-2">
                         <UserPlus className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -949,6 +964,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           <div className="relative">
                             <input
                               type={showAdminRegPass ? "text" : "password"}
+                              name="adminNewPassword"
+                              autoComplete="new-password"
                               required
                               value={adminRegPasskey}
                               onChange={(e) => setAdminRegPasskey(e.target.value)}
@@ -971,6 +988,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           </label>
                           <input
                             type={showAdminRegPass ? "text" : "password"}
+                            name="adminNewPasswordConfirmation"
+                            autoComplete="new-password"
                             required
                             value={adminRegConfirmPasskey}
                             onChange={(e) => setAdminRegConfirmPasskey(e.target.value)}
@@ -1039,7 +1058,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       </div>
                     ) : (
                       <>
-                        <form onSubmit={handleLoginSubmit} className="space-y-4">
+                        <form onSubmit={handleLoginSubmit} className="space-y-4" autoComplete="on">
                           {loginError && (
                             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
                               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -1056,6 +1075,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                                 <input
                                   type="text"
+                                  name="studentEmail"
+                                  autoComplete="username"
                                   value={loginIdentifier}
                                   onChange={(e) => setLoginIdentifier(e.target.value)}
                                   placeholder="e.g. rollnumber@college.edu.in or 21BCSE001"
@@ -1072,6 +1093,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                                 <input
                                   type={showLoginPassword ? 'text' : 'password'}
+                                  name="studentPassword"
+                                  autoComplete="current-password"
                                   value={loginPassword}
                                   onChange={(e) => setLoginPassword(e.target.value)}
                                   placeholder="Enter your profile password"
@@ -1086,6 +1109,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                                 </button>
                               </div>
                             </div>
+                            <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                name="rememberStudent"
+                                checked={rememberStudent}
+                                onChange={(e) => setRememberStudent(e.target.checked)}
+                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                              />
+                              <span>Remember me (allow browser password manager to save this login)</span>
+                            </label>
                           </div>
 
                           <button
@@ -1143,6 +1176,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               <input
                                 type="password"
+                                autoComplete="new-password"
                                 required
                                 value={recoveryPassword}
                                 onChange={(e) => setRecoveryPassword(e.target.value)}
@@ -1151,6 +1185,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                               />
                               <input
                                 type="password"
+                                autoComplete="new-password"
                                 required
                                 value={recoveryConfirmPassword}
                                 onChange={(e) => setRecoveryConfirmPassword(e.target.value)}
@@ -1177,7 +1212,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                 {/* STUDENT REGISTRATION FORM */}
                 {mode === 'register' && (
-                  <form onSubmit={handleRegisterSubmit} className="space-y-6">
+                  <form onSubmit={handleRegisterSubmit} className="space-y-6" autoComplete="on">
                     
                     {regError && (
                       <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
@@ -1314,6 +1349,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           <div className="relative">
                             <input
                               type={showRegPassword ? 'text' : 'password'}
+                              autoComplete="new-password"
                               required
                               value={regPassword}
                               onChange={(e) => setRegPassword(e.target.value)}
@@ -1344,6 +1380,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           </label>
                           <input
                             type={showRegPassword ? 'text' : 'password'}
+                            autoComplete="new-password"
                             required
                             value={regConfirmPassword}
                             onChange={(e) => setRegConfirmPassword(e.target.value)}
