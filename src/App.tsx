@@ -97,6 +97,11 @@ export default function App() {
       return;
     }
 
+    if (nextPage === 'placement-cell' && !adminSession) {
+      triggerToast("Placement Cell management is restricted to authorized Placement Officers.");
+      return;
+    }
+
     // If student is registered/logged in but verificationStatus !== 'Verified', protect access to recruitment features
     const protectedPages: ActivePage[] = ['pipeline', 'recommendations', 'jobs', 'skill-gap', 'dashboard'];
     if (student && student.verificationStatus !== 'Verified' && protectedPages.includes(nextPage)) {
@@ -481,11 +486,6 @@ export default function App() {
               students={registeredStudents}
               onUpdateStudent={handleUpdateStudent}
               onDeleteStudent={handleDeleteStudent}
-              activeStudent={student}
-              onSelectActiveStudent={(stu) => {
-                setStudent(stu);
-                triggerToast(`Loaded candidate profile for ${stu.name}.`);
-              }}
               jobs={jobs}
               onAddJob={handleAddJob}
               onDeleteJob={handleDeleteJob}

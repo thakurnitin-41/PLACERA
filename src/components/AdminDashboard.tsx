@@ -72,8 +72,6 @@ interface AdminDashboardProps {
   onDeleteJob: (jobId: string) => void;
   onBack?: () => void;
   setActivePage?: (page: ActivePage) => void;
-  activeStudent?: StudentProfileData | null;
-  onSelectActiveStudent?: (student: StudentProfileData) => void;
   isAdminAuthenticated?: boolean;
   onAdminLogin?: (adminSession: AdminCredentials) => void;
   onAdminLogout?: () => void;
@@ -89,8 +87,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onDeleteJob,
   onBack,
   setActivePage,
-  activeStudent,
-  onSelectActiveStudent,
   isAdminAuthenticated: externalIsAuth,
   onAdminLogin,
   onAdminLogout,
@@ -1123,20 +1119,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
 
                       <div className="flex items-center gap-1">
-                        {onSelectActiveStudent && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onSelectActiveStudent(stu);
-                              showToast(`Switched active profile to ${stu.name}`);
-                            }}
-                            className="px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors cursor-pointer"
-                            title="Inspect in student view"
-                          >
-                            Load as Active
-                          </button>
-                        )}
-
                         {/* Working Guaranteed Delete Button */}
                         {pendingDeleteId === stu.student_id ? (
                           <div className="flex items-center gap-1 bg-red-50 border border-red-200 rounded-lg p-1">
@@ -1779,20 +1761,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </span>
 
                   <div className="flex items-center gap-2">
-                    {onSelectActiveStudent && setActivePage && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onSelectActiveStudent(inspectingStudent);
-                          setActivePage('profile');
-                          setInspectingStudent(null);
-                        }}
-                        className="px-3.5 py-1.5 text-xs font-bold text-slate-900 bg-amber-300 hover:bg-amber-200 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-xs"
-                      >
-                        <Award className="w-3.5 h-3.5" />
-                        <span>View in Student Profile</span>
-                      </button>
-                    )}
                     <button
                       type="button"
                       onClick={() => setInspectingStudent(null)}
