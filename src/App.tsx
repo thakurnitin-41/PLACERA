@@ -133,6 +133,10 @@ export default function App() {
   };
 
   const handleOpenAuthModal = (role: 'student' | 'admin' = 'student', mode: 'login' | 'register' = 'register') => {
+    if (student) {
+      triggerToast("You are already signed in. Sign out before using another student account.");
+      return;
+    }
     setAuthModalRole(role);
     setAuthModalMode(mode);
     setShowAuthModal(true);
@@ -513,7 +517,7 @@ export default function App() {
       )}
 
       {/* Authentication Modal (Dual Role: Students & Admins) */}
-      {showAuthModal && (
+      {showAuthModal && !student && (
         <AuthModal
           isOpen={showAuthModal}
           initialRole={authModalRole}

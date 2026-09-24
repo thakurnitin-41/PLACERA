@@ -1045,57 +1045,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           </button>
                         </form>
 
-                        {/* Quick One-Click Switcher */}
-                        <div className="pt-3 border-t border-slate-100 space-y-2">
-                          <span className="font-bold text-slate-900 block text-[11px]">
-                            Or Instant 1-Click Profile Selection:
-                          </span>
-                          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                            {registeredStudents.map((stu) => (
-                              <div
-                                key={stu.student_id}
-                                className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-indigo-50/50 hover:border-indigo-200 transition-all text-xs group"
-                              >
-                                <div 
-                                  onClick={() => handleQuickSelectStudent(stu)}
-                                  className="flex items-center gap-2.5 flex-1 cursor-pointer overflow-hidden"
-                                >
-                                  <div className="w-8 h-8 rounded-full overflow-hidden border border-indigo-200 bg-white shrink-0">
-                                    {stu.avatarUrl ? (
-                                      <img src={stu.avatarUrl} alt={stu.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                      <div className="w-full h-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                                        {stu.name.charAt(0)}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="truncate">
-                                    <div className="font-bold text-slate-900 group-hover:text-indigo-600 truncate flex items-center gap-1.5">
-                                      <span>{stu.name}</span>
-                                      {stu.studentProof && (
-                                        <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded flex items-center gap-0.5">
-                                          <FileCheck2 className="w-2.5 h-2.5" />
-                                          <span>Verified</span>
-                                        </span>
-                                      )}
-                                    </div>
-                                    <div className="text-[10px] text-slate-500 font-mono truncate">
-                                      {stu.rollNumber || stu.student_id} • {stu.branch} ({stu.GPA} CGPA)
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleQuickSelectStudent(stu)}
-                                  className="px-2.5 py-1 text-[11px] font-semibold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded-lg transition-colors cursor-pointer shrink-0 ml-2"
-                                >
-                                  Load
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
                       </>
                     )}
                   </div>
