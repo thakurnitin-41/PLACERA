@@ -9,7 +9,6 @@ import {
   Layers, 
   Database, 
   Cpu, 
-  GraduationCap, 
   Menu, 
   X,
   Building2,
@@ -72,7 +71,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     },
     { id: 'skill-gap', label: 'Skill Gap', icon: <Layers className="w-4 h-4" />, section: 'Student' },
     { id: 'jobs', label: 'Opportunities', icon: <Building2 className="w-4 h-4" />, section: 'Student' },
-    { id: 'ai-insights', label: 'Readiness & Roadmap', icon: <GraduationCap className="w-4 h-4" />, section: 'Student' },
     { id: 'admin', label: 'Admin Overview', icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />, section: 'Admin' },
   ];
 

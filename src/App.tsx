@@ -13,7 +13,6 @@ import { RecommendationDashboard } from './components/RecommendationDashboard';
 import { SkillGapAnalysis } from './components/SkillGapAnalysis';
 import { StudentDashboard } from './components/StudentDashboard';
 import { PlacementCellDashboard } from './components/PlacementCellDashboard';
-import { AIInsightsModelPage } from './components/AIInsightsModelPage';
 import { JobsDirectory } from './components/JobsDirectory';
 import { JobDetailsModal } from './components/JobDetailsModal';
 import { DatabaseSchemaModal } from './components/DatabaseSchemaModal';
@@ -23,7 +22,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { AdminSecurityGate, AdminCredentials } from './components/AdminSecurityGate';
 import { VerificationWaitingGate } from './components/VerificationWaitingGate';
 
-import { Database, GraduationCap, CheckCircle2 } from 'lucide-react';
+import { Database, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [activePage, setActivePage] = useState<ActivePage>('landing');
@@ -432,12 +431,6 @@ export default function App() {
           />
         )}
 
-        {activePage === 'ai-insights' && (
-          <AIInsightsModelPage 
-            onBack={goBack}
-          />
-        )}
-
         {activePage === 'jobs' && (
           <JobsDirectory
             jobs={jobs}
@@ -570,14 +563,6 @@ export default function App() {
             >
               <Database className="w-3.5 h-3.5 text-indigo-500" />
               <span>MySQL Schema</span>
-            </button>
-            <span>•</span>
-            <button
-              onClick={() => navigateTo('ai-insights')}
-              className="hover:text-indigo-600 flex items-center gap-1 cursor-pointer"
-            >
-              <GraduationCap className="w-3.5 h-3.5 text-indigo-500" />
-              <span>ML Architecture & Viva Defense</span>
             </button>
             <span>•</span>
             <button
