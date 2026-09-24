@@ -59,23 +59,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const navItems: { id: ActivePage; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'landing', label: 'Home', icon: <Sparkles className="w-4 h-4" /> },
-    { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp className="w-4 h-4" /> },
-    { id: 'profile', label: 'My Profile', icon: <UserCheck className="w-4 h-4" /> },
-    { id: 'pipeline', label: 'AI Pipeline', icon: <Cpu className="w-4 h-4" /> },
+  const navItems: { id: ActivePage; label: string; icon: React.ReactNode; section: 'Student' | 'Admin'; badge?: string }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: <TrendingUp className="w-4 h-4" />, section: 'Student' },
+    { id: 'profile', label: 'Profile', icon: <UserCheck className="w-4 h-4" />, section: 'Student' },
+    { id: 'pipeline', label: 'AI Match', icon: <Cpu className="w-4 h-4" />, section: 'Student' },
     { 
       id: 'recommendations', 
       label: 'Recommendations', 
       icon: <Briefcase className="w-4 h-4" />,
+      section: 'Student',
       badge: recommendationsCount > 0 ? `${recommendationsCount}` : undefined 
     },
-    { id: 'skill-gap', label: 'Skill Gap', icon: <Layers className="w-4 h-4" /> },
-    { id: 'jobs', label: 'Jobs Directory', icon: <Building2 className="w-4 h-4" /> },
-    { id: 'ai-insights', label: 'AI Insights', icon: <GraduationCap className="w-4 h-4" /> },
-    { id: 'placement-cell', label: 'Placement Cell', icon: <Building2 className="w-4 h-4" /> },
-    { id: 'admin', label: 'Admin Portal', icon: <ShieldCheck className="w-4 h-4 text-emerald-400" /> },
+    { id: 'skill-gap', label: 'Skill Gap', icon: <Layers className="w-4 h-4" />, section: 'Student' },
+    { id: 'jobs', label: 'Opportunities', icon: <Building2 className="w-4 h-4" />, section: 'Student' },
+    { id: 'ai-insights', label: 'Readiness & Roadmap', icon: <GraduationCap className="w-4 h-4" />, section: 'Student' },
+    { id: 'admin', label: 'Admin Overview', icon: <ShieldCheck className="w-4 h-4 text-emerald-400" />, section: 'Admin' },
   ];
+
+  const visibleNavItems = student
+    ? navItems.filter(item => item.section === 'Student')
+    : adminSession
+      ? navItems.filter(item => item.section === 'Admin')
+      : [];
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
@@ -429,7 +434,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          {(student || adminSession) && navItems.filter(item => item.id !== 'admin' || !!adminSession).map((item) => {
+          {visibleNavItems.length > 0 && (
+            <>
+              <div className="px-3 pt-2 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                {student ? 'Student Portal' : 'Admin Portal'}
+              </div>
+              {visibleNavItems.map((item) => {
             const isActive = activePage === item.id;
             return (
               <button
@@ -453,7 +463,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </button>
             );
-          })}
+              })}
+            </>
+          )}
 
           <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
             {/* When already signed in as student */}
