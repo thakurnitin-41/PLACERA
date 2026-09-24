@@ -436,6 +436,7 @@ export default function App() {
           <JobsDirectory
             jobs={jobs}
             student={student}
+            recommendations={recommendations}
             onSelectJob={handleSelectRawJob}
             onRunAIMatch={() => {
               if (student) {

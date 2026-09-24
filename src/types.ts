@@ -11,6 +11,14 @@ export type Branch =
 
 export type JobType = 'Full-Time' | 'Internship' | 'Intern + PPO';
 
+export type ApplicationStatus = 'Saved' | 'Applied' | 'Assessment' | 'Interview' | 'Offer' | 'Rejected';
+
+export interface ApplicationRecord {
+  jobId: string;
+  status: ApplicationStatus;
+  updatedAt: string;
+}
+
 export type ExperienceLevel = 
   | 'Entry Level (Fresher)' 
   | '0-1 Years' 
@@ -248,6 +256,9 @@ export interface JobPosting {
   interview_rounds?: string[];
   max_allowed_backlogs?: number;
   eligible_graduation_years?: number[];
+  work_mode?: 'On-site' | 'Hybrid' | 'Remote';
+  application_deadline?: string;
+  application_url?: string;
   isSyntheticDemoData?: boolean;
 }
 

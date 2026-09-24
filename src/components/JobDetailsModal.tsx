@@ -24,6 +24,7 @@ import {
   HelpCircle,
   TrendingUp,
   ShieldCheck
+  ,ClipboardCheck, ExternalLink as ExternalLinkIcon
 } from 'lucide-react';
 
 interface JobDetailsModalProps {
@@ -61,6 +62,7 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
     experienceLevel: 'Entry Level (Fresher)',
   };
   const [activeTab, setActiveTab] = useState<'overview' | 'skills' | 'roadmap'>('overview');
+  const [applicationMarked, setApplicationMarked] = useState(false);
 
   if (!recommendation) return null;
 
@@ -76,6 +78,22 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
     : 'Challenging Match';
 
   const gpaBuffer = Number((student.GPA - job.minimum_gpa).toFixed(2));
+  const profileFields = [student.name, student.collegeName, student.branch, student.GPA, student.skills.length, student.projects.length];
+  const profileCompletion = Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100);
+  const resumeReady = typeof student.atsResumeScore === 'number' || Boolean(student.uploadedCertificates?.length);
+  const deadlineText = job.application_deadline
+    ? new Date(job.application_deadline).toLocaleDateString()
+    : 'Not listed';
+  const markApplied = () => {
+    const key = `placera_job_workspace_${student.student_id}`;
+    const current = JSON.parse(localStorage.getItem(key) || '{}');
+    const applications = Array.isArray(current.applications) ? current.applications : [];
+    const next = [...applications.filter((item: { jobId: string }) => item.jobId !== job.job_id), {
+      jobId: job.job_id, status: 'Applied', updatedAt: new Date().toISOString()
+    }];
+    localStorage.setItem(key, JSON.stringify({ ...current, applications: next }));
+    setApplicationMarked(true);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
@@ -166,6 +184,35 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
 
         {/* Scrollable Content */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs text-slate-700">
+          <div className="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2"><ClipboardCheck className="w-4 h-4 text-indigo-600" /> Application Readiness</h3>
+              <span className={`font-bold ${isEligible ? 'text-emerald-700' : 'text-amber-700'}`}>{isEligible ? 'Eligible to apply' : 'Review requirements'}</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <span className={`rounded-lg px-2 py-2 ${resumeReady ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>Resume/ATS<br /><b>{resumeReady ? 'Available' : 'Review needed'}</b></span>
+              <span className={`rounded-lg px-2 py-2 ${isEligible ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>Eligibility<br /><b>{isEligible ? 'Passed' : 'Check gaps'}</b></span>
+              <span className="rounded-lg px-2 py-2 bg-white text-slate-700">Profile<br /><b>{profileCompletion}% complete</b></span>
+              <span className="rounded-lg px-2 py-2 bg-white text-slate-700">Skills<br /><b>{recommendation.matching_skills.length} matched</b></span>
+              <span className="rounded-lg px-2 py-2 bg-white text-slate-700">Deadline<br /><b>{deadlineText}</b></span>
+            </div>
+            {!isEligible && (
+              <div className="bg-white rounded-xl border border-amber-200 p-3 space-y-1">
+                <p className="font-bold text-slate-800">Eligibility explanation</p>
+                <p>{recommendation.eligibility_report?.notes.join(' ') || `CGPA ${student.GPA} vs minimum ${job.minimum_gpa}; branch and other criteria should be reviewed.`}</p>
+                <p className="text-amber-700">Missing requirements: {recommendation.missing_skills.length ? recommendation.missing_skills.join(', ') : 'See eligibility notes'}</p>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <button onClick={markApplied} className="px-3 py-2 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 cursor-pointer">{applicationMarked ? 'Marked Applied' : 'Mark as Applied'}</button>
+              {job.application_url ? (
+                <a href={job.application_url} target="_blank" rel="noreferrer" className="px-3 py-2 rounded-xl bg-white border border-indigo-200 text-indigo-700 font-bold hover:bg-indigo-100 inline-flex items-center gap-1.5">Continue to Company Application <ExternalLinkIcon className="w-3.5 h-3.5" /></a>
+              ) : (
+                <span className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-500">Company link not configured for this synthetic listing</span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-500">PLACERA does not submit applications. Use the external company site, then track your status here.</p>
+          </div>
           
           {/* Plain-English Easy-to-Understand Verdict Banner */}
           <div className="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-800 space-y-4">

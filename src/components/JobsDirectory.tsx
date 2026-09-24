@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { JobPosting, StudentProfileData, RecommendationResult } from '../types';
+import { JobPosting, StudentProfileData, RecommendationResult, ApplicationRecord, ApplicationStatus } from '../types';
 import { 
   Building2, 
   Search, 
@@ -10,11 +10,13 @@ import {
   Sparkles,
   ArrowRight,
   ArrowLeft
+  ,Bookmark, BookmarkCheck, GitCompareArrows, Clock3, ExternalLink, ClipboardList
 } from 'lucide-react';
 
 interface JobsDirectoryProps {
   jobs: JobPosting[];
   student?: StudentProfileData | null;
+  recommendations?: RecommendationResult[];
   onSelectJob: (job: JobPosting) => void;
   onRunAIMatch?: () => void;
   onOpenAuthModal?: (mode?: 'login' | 'register') => void;
@@ -24,6 +26,7 @@ interface JobsDirectoryProps {
 export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
   jobs,
   student,
+  recommendations = [],
   onSelectJob,
   onRunAIMatch,
   onOpenAuthModal,
@@ -33,6 +36,40 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
   const [branchFilter, setBranchFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
+  const [deadlineSort, setDeadlineSort] = useState<'none' | 'soonest'>('none');
+  const [selectedForCompare, setSelectedForCompare] = useState<string[]>([]);
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [showApplications, setShowApplications] = useState(false);
+  const [savedJobIds, setSavedJobIds] = useState<string[]>([]);
+  const [applications, setApplications] = useState<ApplicationRecord[]>([]);
+
+  const storageKey = student ? `placera_job_workspace_${student.student_id}` : '';
+  React.useEffect(() => {
+    if (!storageKey) {
+      setSavedJobIds([]);
+      setApplications([]);
+      return;
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      setSavedJobIds(Array.isArray(saved.savedJobIds) ? saved.savedJobIds : []);
+      setApplications(Array.isArray(saved.applications) ? saved.applications : []);
+    } catch {
+      setSavedJobIds([]);
+      setApplications([]);
+    }
+  }, [storageKey]);
+
+  const persistWorkspace = (nextSaved: string[], nextApplications: ApplicationRecord[]) => {
+    if (!storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify({ savedJobIds: nextSaved, applications: nextApplications }));
+  };
+
+  const updateApplication = (jobId: string, status: ApplicationStatus) => {
+    const next = [...applications.filter(app => app.jobId !== jobId), { jobId, status, updatedAt: new Date().toISOString() }];
+    setApplications(next);
+    persistWorkspace(savedJobIds, next);
+  };
 
   const normalizeCity = (value: string) => value
     .replace(/\([^)]*\)/g, ' ')
@@ -56,6 +93,7 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
 
   const filtered = useMemo(() => {
     return jobs.filter(j => {
+      if (showSavedOnly && !savedJobIds.includes(j.job_id)) return false;
       if (search) {
         const text = `${j.company} ${j.job_title} ${j.location} ${j.description} ${j.required_skills.join(' ')}`.toLowerCase();
         if (!text.includes(search.toLowerCase())) return false;
@@ -68,13 +106,30 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
       }
       return true;
     }).sort((a, b) => {
+      if (deadlineSort === 'soonest') {
+        return new Date(a.application_deadline || '2999-12-31').getTime() - new Date(b.application_deadline || '2999-12-31').getTime();
+      }
       if (cityFilter === 'all') return 0;
       const preferred = normalizeCity(cityFilter);
       const aMatches = splitCities(a.location).some(city => city === preferred || city.includes(preferred) || preferred.includes(city));
       const bMatches = splitCities(b.location).some(city => city === preferred || city.includes(preferred) || preferred.includes(city));
       return Number(bMatches) - Number(aMatches);
     });
-  }, [jobs, search, branchFilter, categoryFilter, cityFilter]);
+  }, [jobs, search, branchFilter, categoryFilter, cityFilter, deadlineSort, showSavedOnly, savedJobIds]);
+
+  const comparisonJobs = jobs.filter(job => selectedForCompare.includes(job.job_id));
+  const recommendedJobs = recommendations.slice(0, 3);
+  const getDaysLeft = (deadline?: string) => {
+    if (!deadline) return null;
+    return Math.ceil((new Date(deadline).getTime() - Date.now()) / 86400000);
+  };
+  const toggleSaved = (jobId: string) => {
+    const next = savedJobIds.includes(jobId)
+      ? savedJobIds.filter(id => id !== jobId)
+      : [...savedJobIds, jobId];
+    setSavedJobIds(next);
+    persistWorkspace(next, applications);
+  };
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
@@ -103,6 +158,7 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
             <Building2 className="w-3.5 h-3.5" />
             <span>Synthetic Campus Recruitment Pool</span>
           </div>
+
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
             Campus Placement Opportunities <span className="text-[10px] font-semibold text-amber-700">(demo data)</span>
           </h1>
@@ -115,6 +171,32 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
           <span className="font-bold text-indigo-600">{jobs.length} Recruiter Openings</span>
         </div>
       </div>
+
+      {student && (
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => { setShowSavedOnly(false); setShowApplications(false); }} className={`px-3 py-2 rounded-xl text-xs font-semibold border ${!showSavedOnly && !showApplications ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'}`}>All Opportunities ({jobs.length})</button>
+          <button onClick={() => { setShowSavedOnly(true); setShowApplications(false); }} className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 ${showSavedOnly ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'}`}><BookmarkCheck className="w-3.5 h-3.5" /> Saved Jobs ({savedJobIds.length})</button>
+          <button onClick={() => { setShowApplications(true); setShowSavedOnly(false); }} className={`px-3 py-2 rounded-xl text-xs font-semibold border flex items-center gap-1.5 ${showApplications ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'}`}><ClipboardList className="w-3.5 h-3.5" /> My Applications ({applications.length})</button>
+        </div>
+      )}
+
+      {student && !showSavedOnly && !showApplications && recommendedJobs.length > 0 && (
+        <section className="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 space-y-3">
+          <div><h2 className="text-base font-bold text-slate-900">Recommended for You</h2><p className="text-xs text-slate-600 mt-0.5">Personalized using your profile, target role, skills, eligibility, and existing AI Match Score.</p></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {recommendedJobs.map(rec => <button key={rec.job.job_id} onClick={() => onSelectJob(rec.job)} className="text-left bg-white border border-indigo-100 rounded-xl p-3 hover:border-indigo-400 transition-colors cursor-pointer"><p className="text-xs font-bold text-slate-900">{rec.job.job_title}</p><p className="text-[11px] text-slate-600">{rec.job.company} · {rec.job.location}</p><span className="inline-block mt-2 text-[11px] font-bold text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">AI Match {rec.final_match_score}%</span></button>)}
+          </div>
+        </section>
+      )}
+
+      {comparisonJobs.length > 0 && (
+        <div className="bg-slate-900 text-white rounded-2xl p-4 overflow-x-auto">
+          <div className="flex items-center justify-between gap-3 mb-3"><h2 className="text-sm font-bold flex items-center gap-2"><GitCompareArrows className="w-4 h-4 text-indigo-300" /> Compare Selected ({comparisonJobs.length}/3)</h2><button onClick={() => setSelectedForCompare([])} className="text-xs text-slate-300 hover:text-white">Clear</button></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 min-w-[680px]">
+            {comparisonJobs.map(job => { const rec = recommendations.find(item => item.job.job_id === job.job_id); const missing = rec?.missing_skills || job.required_skills; return <div key={job.job_id} className="bg-slate-800 rounded-xl p-3 text-xs space-y-1.5"><p className="font-bold text-white">{job.job_title}</p><p className="text-indigo-200">{job.company}</p><p>Location: {job.location}</p><p>Mode: {job.work_mode || 'On-site'}</p><p>Salary: {job.ctc_range || 'Not listed'}</p><p>Eligibility: {rec?.eligibility_report?.overallStatus || 'Review profile'}</p><p>Match: {rec ? `${rec.final_match_score}%` : '—'}</p><p className="text-amber-300">Missing: {missing.length ? missing.slice(0, 3).join(', ') : 'None'}</p><p>Deadline: {job.application_deadline || 'Not listed'}</p></div>; })}
+          </div>
+        </div>
+      )}
 
       {/* AI Match Search Call-to-Action */}
       <div className="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl p-5 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -206,14 +288,26 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
             <option value="Tier 2">Tier 2</option>
             <option value="Core IT">Core IT</option>
           </select>
+          <select
+            value={deadlineSort}
+            onChange={(e) => setDeadlineSort(e.target.value as 'none' | 'soonest')}
+            className="px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white text-slate-700"
+          >
+            <option value="none">Default Job Order</option>
+            <option value="soonest">Deadline: Soonest First</option>
+          </select>
         </div>
       </div>
 
       {/* Grid of Job Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filtered.map((job) => {
+        {(showApplications ? jobs.filter(job => applications.some(app => app.jobId === job.job_id)) : filtered).map((job) => {
           const isGpaEligible = student ? student.GPA >= job.minimum_gpa : true;
           const isBranchEligible = student ? job.eligible_branches.includes(student.branch) : true;
+          const rec = recommendations.find(item => item.job.job_id === job.job_id);
+          const application = applications.find(app => app.jobId === job.job_id);
+          const isSaved = savedJobIds.includes(job.job_id);
+          const daysLeft = getDaysLeft(job.application_deadline);
 
           return (
             <div
@@ -236,6 +330,12 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
                       {job.ctc_range}
                     </span>
                   )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                  {rec && <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">AI Match {rec.final_match_score}%</span>}
+                  <span className={`${daysLeft !== null && daysLeft <= 3 ? 'text-red-600 font-bold' : 'text-slate-500'} flex items-center gap-1`}><Clock3 className="w-3 h-3" /> {daysLeft !== null ? (daysLeft <= 0 ? 'Closing soon' : `${daysLeft} days left`) : 'Deadline not listed'}</span>
+                  {application && <span className="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">{application.status}</span>}
                 </div>
 
                 <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
@@ -261,13 +361,25 @@ export const JobsDirectory: React.FC<JobsDirectoryProps> = ({
                   <span>{job.location}</span>
                 </div>
 
-                <button
-                  onClick={() => onSelectJob(job)}
-                  className="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-xl transition-colors cursor-pointer flex items-center gap-1"
-                >
-                  <span>View Details</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  {student && application && <select
+                    value={application.status}
+                    onChange={(e) => updateApplication(job.job_id, e.target.value as ApplicationStatus)}
+                    className="px-2 py-1.5 text-[11px] border border-slate-200 rounded-lg bg-white text-slate-700"
+                    aria-label={`Update application status for ${job.job_title}`}
+                  >
+                    {(['Saved', 'Applied', 'Assessment', 'Interview', 'Offer', 'Rejected'] as ApplicationStatus[]).map(status => <option key={status} value={status}>{status}</option>)}
+                  </select>}
+                  {student && <button onClick={() => toggleSaved(job.job_id)} title={isSaved ? 'Remove from saved jobs' : 'Save job'} className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 cursor-pointer">{isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}</button>}
+                  {student && <button
+                    onClick={() => setSelectedForCompare(current => current.includes(job.job_id) ? current.filter(id => id !== job.job_id) : current.length < 3 ? [...current, job.job_id] : current)}
+                    title="Select for comparison"
+                    className={`p-1.5 rounded-lg cursor-pointer ${selectedForCompare.includes(job.job_id) ? 'text-white bg-indigo-600' : 'text-indigo-600 hover:bg-indigo-50'}`}
+                  ><GitCompareArrows className="w-4 h-4" /></button>}
+                  <button onClick={() => onSelectJob(job)} className="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-xl transition-colors cursor-pointer flex items-center gap-1">
+                    <span>View Details</span><ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           );

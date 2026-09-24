@@ -476,7 +476,24 @@ const MOCK_JOBS_DATA: JobPosting[] = [
   }
 ];
 
-export const MOCK_JOBS: JobPosting[] = MOCK_JOBS_DATA.map(job => ({
+const COMPANY_CAREERS: Record<string, string> = {
+  'Microsoft IDC': 'https://jobs.careers.microsoft.com/',
+  'Amazon Web Services': 'https://www.amazon.jobs/',
+  'Adobe Systems': 'https://careers.adobe.com/',
+  'Infosys': 'https://www.infosys.com/careers/',
+  'HCLTech': 'https://www.hcltech.com/careers',
+  'Cognizant': 'https://careers.cognizant.com/',
+  'Tech Mahindra': 'https://careers.techmahindra.com/',
+};
+
+export const MOCK_JOBS: JobPosting[] = MOCK_JOBS_DATA.map((job, index) => ({
   ...job,
+  work_mode: job.location.toLowerCase().includes('remote')
+    ? 'Remote'
+    : job.location.toLowerCase().includes('hybrid')
+      ? 'Hybrid'
+      : 'On-site',
+  application_deadline: new Date(Date.now() + ((index % 8) + 2) * 86400000).toISOString().slice(0, 10),
+  application_url: COMPANY_CAREERS[job.company],
   isSyntheticDemoData: true
 }));
