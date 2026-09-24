@@ -15,6 +15,8 @@ import {
   formatCourseAndBranch 
 } from '../data/coursesAndBranches';
 import { calculateAcademicStanding } from '../utils/crypto';
+import { ResumeAnalyzer } from './ResumeAnalyzer';
+import { ATSResumeAnalysis } from '../types';
 import { 
   User, 
   GraduationCap, 
@@ -235,6 +237,17 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
   const [showAchievementModal, setShowAchievementModal] = useState(false);
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
+  const handleResumeAnalyzed = (analysis: ATSResumeAnalysis, resumeText: string, fileName?: string) => {
+    if (!student) return;
+    const mergedSkills = Array.from(new Set([...student.skills, ...analysis.foundSkills]));
+    setStudent({
+      ...student,
+      skills: mergedSkills,
+      atsResumeScore: analysis.atsScore,
+      resumeText,
+      resumeFileName: fileName,
+    });
+  };
 
   // Dynamic academic standing calculation based on student admission and current date (2026)
   const standingCalc = useMemo(() => {
@@ -947,6 +960,12 @@ export const StudentProfile: React.FC<StudentProfileProps> = ({
 
       {/* Form Grid */}
       <div className="space-y-6">
+        <ResumeAnalyzer
+          student={student}
+          onScoreSaved={(score) => setStudent({ ...student, atsResumeScore: score })}
+          onResumeAnalyzed={handleResumeAnalyzed}
+        />
+
         {/* 1. Personal & Academic Details */}
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-5">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">

@@ -186,6 +186,8 @@ export interface StudentProfileData {
   coreSubjects?: string[];
   leadershipAndExtracurriculars?: string[];
   atsResumeScore?: number; // ATS Resume Score out of 100
+  resumeFileName?: string;
+  resumeText?: string;
   willingToRelocate?: boolean;
 }
 

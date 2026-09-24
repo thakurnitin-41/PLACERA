@@ -6,16 +6,28 @@ import { analyzeResumeText } from '../services/resumeAnalysisService';
 interface ResumeAnalyzerProps {
   student: StudentProfileData;
   onScoreSaved?: (score: number) => void;
+  onResumeAnalyzed?: (result: ATSResumeAnalysis, resumeText: string, fileName?: string) => void;
 }
 
-export const ResumeAnalyzer: React.FC<ResumeAnalyzerProps> = ({ student, onScoreSaved }) => {
+export const ResumeAnalyzer: React.FC<ResumeAnalyzerProps> = ({ student, onScoreSaved, onResumeAnalyzed }) => {
   const [resumeText, setResumeText] = useState('');
   const [analysis, setAnalysis] = useState<ATSResumeAnalysis | null>(null);
+  const [fileName, setFileName] = useState('');
 
   const handleAnalyze = () => {
     const result = analyzeResumeText(resumeText, student.preferred_role);
     setAnalysis(result);
     if (resumeText.trim()) onScoreSaved?.(result.atsScore);
+    if (resumeText.trim()) onResumeAnalyzed?.(result, resumeText, fileName || undefined);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setResumeText(typeof reader.result === 'string' ? reader.result : '');
+    reader.readAsText(file);
   };
 
   return (
@@ -35,6 +47,10 @@ export const ResumeAnalyzer: React.FC<ResumeAnalyzerProps> = ({ student, onScore
         className="w-full min-h-32 mt-4 p-3 rounded-xl border border-slate-200 text-xs text-slate-700 outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400"
         aria-label="Resume text"
       />
+      <label className="mt-3 flex items-center justify-center w-full min-h-16 rounded-xl border border-dashed border-indigo-300 bg-indigo-50/40 text-xs font-semibold text-indigo-700 cursor-pointer hover:bg-indigo-50">
+        <input type="file" accept=".txt,.md,.text" onChange={handleFileUpload} className="sr-only" />
+        {fileName ? `Uploaded: ${fileName}` : 'Upload resume text file (.txt, .md)'}
+      </label>
       <button type="button" onClick={handleAnalyze} className="mt-3 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700">
         Analyze resume
       </button>

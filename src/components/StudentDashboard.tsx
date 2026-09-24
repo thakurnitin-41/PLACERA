@@ -358,6 +358,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       <ResumeAnalyzer
         student={student}
         onScoreSaved={score => onUpdateStudent?.({ ...student, atsResumeScore: score })}
+        onResumeAnalyzed={(analysis, resumeText, fileName) => onUpdateStudent?.({
+          ...student,
+          atsResumeScore: analysis.atsScore,
+          resumeText,
+          resumeFileName: fileName,
+          skills: Array.from(new Set([...student.skills, ...analysis.foundSkills])),
+        })}
       />
 
       {/* Charts Grid: Visualizations */}
@@ -470,6 +477,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
           >
             <span>View All {recommendations.length} Jobs</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setActivePage('jobs')}
+            className="text-xs font-bold text-slate-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+          >
+            <span>Browse All Opportunities</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
